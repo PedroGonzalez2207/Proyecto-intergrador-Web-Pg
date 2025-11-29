@@ -1,0 +1,32 @@
+<div class="page-container">
+
+  <div class="card">
+    <h1>Gestión de Usuarios (Admin)</h1>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let u of (users$ | async)">
+          <td>{{ u.displayName || 'Sin nombre' }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.role }}</td>
+
+          <td class="actions">
+            <button (click)="cambiarRol(u, 'Admin')">Admin</button>
+            <button (click)="cambiarRol(u, 'Programador')">Programador</button>
+            <button (click)="cambiarRol(u, 'Usuario')">Usuario</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

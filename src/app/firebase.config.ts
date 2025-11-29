@@ -7,7 +7,7 @@ export const firebaseConfig = {
   apiKey: "AIzaSyBdPOEr8w81XdFFlBcED58wGX8UBWbI1EE",
   authDomain: "proyecto-integrador-web-pg.firebaseapp.com",
   projectId: "proyecto-integrador-web-pg",
-  storageBucket: "proyecto-integrador-web-pg.firebasestorage.app",
+  storageBucket: "proyecto-integrador-web-pg.appspot.com",
   messagingSenderId: "1069167935096",
   appId: "1:1069167935096:web:3ec6929047fc75ade3778d",
   measurementId: "G-BWQC8PL5HZ"

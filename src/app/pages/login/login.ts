@@ -16,13 +16,8 @@ export class Login {
   private authService = inject(Auth);
 
   //Metodo al usar al botón
-  onLoginWithGoogle(): void{
-    this.authService.loginWithGoogle().then((result: any) => {
-      console.log('Usuario Logueado:', result.user);
-    })
-    .catch((error) =>{
-      console.log('Error al iniciar sesion:', error);
-    });
+  async onLoginWithGoogle(): Promise<void> {
+    console.log('Click login con google (redirect)');
+    await this.authService.loginWithGoogle();
   }
-
 }

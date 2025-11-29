@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Firestore, collection, collectionData, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore'
 import { Observable } from 'rxjs';
 import { AppUser, Role } from '../models/app-user';
-import { App } from '../app';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +17,7 @@ export class User {
     return collectionData(colRef, {idField: 'uid'}) as Observable<AppUser[]>;
   }
 
-  //Obtener usuria by ID
+  //Obtener usuario by ID
   async getUserByID(uid: string): Promise<AppUser | null>{
     const ref = doc(this.firestore, 'users', uid);
     const snap = await getDoc(ref);
