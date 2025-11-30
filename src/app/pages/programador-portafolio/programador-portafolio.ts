@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+
+import { Auth } from '../../services/auth';
 
 type Categoria = 'Academico' | 'Laboral';
 type Participacion = 'Frontend' | 'Backend' | 'BaseDeDatos' | 'Fullstack';
@@ -26,10 +28,16 @@ interface Proyecto {
 })
 export class ProgramadorPortafolio {
 
-  // 🔥 Modal visible o no
+  // Servicio Auth visible en el template
+  public auth = inject(Auth);
+
+  // Router para redirigir después de cerrar sesión
+  private router = inject(Router);
+
+  // Modal
   modalOpen = false;
 
-  // Lista de proyectos
+  // Proyectos de ejemplo
   proyectos: Proyecto[] = [
     {
       id: 1,
@@ -42,7 +50,6 @@ export class ProgramadorPortafolio {
     }
   ];
 
-  // Modelo para un nuevo proyecto
   nuevo: Proyecto = {
     id: 0,
     categoria: 'Academico',
@@ -54,16 +61,13 @@ export class ProgramadorPortafolio {
     demoUrl: '',
   };
 
-  // Abrir modal
+  // ---------- MODAL ----------
   abrirModal() {
     this.modalOpen = true;
   }
 
-  // Cerrar modal
   cerrarModal() {
     this.modalOpen = false;
-
-    // Limpiar el formulario
     this.nuevo = {
       id: 0,
       categoria: 'Academico',
@@ -76,7 +80,7 @@ export class ProgramadorPortafolio {
     };
   }
 
-  // Agregar proyecto
+  // ---------- CRUD PROYECTOS ----------
   agregarProyecto() {
     if (!this.nuevo.nombre || !this.nuevo.descripcion) return;
 
@@ -85,13 +89,20 @@ export class ProgramadorPortafolio {
       : 1;
 
     this.proyectos.push({ ...this.nuevo, id });
-
     this.cerrarModal();
   }
 
-  // Eliminar
   eliminarProyecto(id: number) {
     this.proyectos = this.proyectos.filter(p => p.id !== id);
   }
 
+  //LOGOUT
+  async logout() {
+    try {
+      await this.auth.logout();
+      this.router.navigate(['/login']);
+    } catch (err) {
+      console.error('Error al cerrar sesión:', err);
+    }
+  }
 }

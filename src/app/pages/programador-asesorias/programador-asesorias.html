@@ -7,7 +7,7 @@
       Administra y responde las solicitudes recibidas por parte de los usuarios.
     </p>
 
-    <button class="back-btn" routerLink="/programador">← Volver al panel</button>
+    <button class="back-btn" routerLink="/programador/portafolio">← Volver al panel</button>
   </header>
 
   <!-- TARJETA PRINCIPAL -->
@@ -52,7 +52,6 @@
     </div>
   </div>
 
-  <!-- MODAL PARA FUTURA RESPUESTA -->
   <div class="modal-bg" *ngIf="modalOpen" (click)="cerrarModal()"></div>
 
   <div class="modal" *ngIf="modalOpen">
@@ -61,8 +60,7 @@
     <p><strong>De:</strong> {{ asesoriaSeleccionada?.usuarioNombre }}</p>
     <p><strong>Fecha:</strong> {{ asesoriaSeleccionada?.fecha }} - {{ asesoriaSeleccionada?.hora }}</p>
 
-    <label>
-      Mensaje de respuesta
+    <label>Mensaje de respuesta
       <textarea rows="3"></textarea>
     </label>
 

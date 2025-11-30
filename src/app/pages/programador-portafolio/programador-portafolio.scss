@@ -1,4 +1,3 @@
-/* COLORES DE TU LOGIN */
 $bg: #020617;
 $card-bg: #0f172a;
 $border: #1f2937;
@@ -6,26 +5,24 @@ $text-main: #e5e7eb;
 $text-muted: #9ca3af;
 $accent: #3b82f6;
 
-/* CONTENEDOR GENERAL */
+/* FONDO GENERAL */
 :host {
   display: block;
   min-height: 100vh;
   background: radial-gradient(circle at top right, #000 0%, #020617 55%, #000 100%);
   color: $text-main;
-  padding: 3rem 1rem;
+  padding: 3rem 1.5rem;
   box-sizing: border-box;
 }
 
-/* CENTRAR CONTENIDO */
 .page-wrapper {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-/* HEADER PRINCIPAL */
+/* HEADER SUPERIOR */
 .main-header {
-  text-align: left;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 
   h1 {
     margin: 0;
@@ -34,23 +31,132 @@ $accent: #3b82f6;
   }
 
   .desc {
-    margin: 0.3rem 0 1rem;
+    margin: 0.4rem 0 0;
     font-size: 1rem;
     color: $text-muted;
   }
+}
 
-  .actions {
+/* LAYOUT DOS COLUMNAS */
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.5rem;
+  align-items: flex-start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* PERFIL (IZQUIERDA) */
+.profile-card {
+  background: $card-bg;
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 1px solid $border;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  text-align: center;
+
+  .avatar {
+    margin-bottom: 0.8rem;
     display: flex;
-    gap: 1rem;
+    justify-content: center;
+
+    img {
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
+      object-fit: cover;
+      border: 2px solid $accent;
+    }
+
+    .initials {
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
+      background: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      border: 2px solid $accent;
+    }
   }
 
+  h2 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+
+  .email {
+    margin: 0.2rem 0;
+    font-size: 0.85rem;
+    color: $text-muted;
+  }
+
+  .rol {
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .hint {
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    color: $text-muted;
+  }
+}
+
+/* TARJETA DE PROYECTOS (DERECHA) */
+.card {
+  background: $card-bg;
+  padding: 1.8rem;
+  border-radius: 20px;
+  border: 1px solid $border;
+  box-shadow: 0 0 25px rgba(0,0,0,0.25);
+}
+
+/* Cabecera dentro de la tarjeta derecha */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 700px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.section-subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  color: $text-muted;
+}
+
+/* Botones de la tarjeta derecha */
+.card-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
   button {
-    padding: 0.5rem 1.2rem;
+    padding: 0.45rem 1.1rem;
     border-radius: 12px;
     border: 1px solid $border;
     background: #111827;
     color: $text-main;
     cursor: pointer;
+    font-size: 0.85rem;
     transition: 0.2s;
 
     &:hover {
@@ -58,26 +164,17 @@ $accent: #3b82f6;
     }
   }
 
-  .create-btn {
+  button:nth-child(2) {
     background: $accent;
     border-color: $accent;
     color: white;
   }
-}
 
-/* LA TARJETA PRINCIPAL */
-.card {
-  background: $card-bg;
-  padding: 2rem;
-  border-radius: 20px;
-  border: 1px solid $border;
-  box-shadow: 0 0 25px rgba(0,0,0,0.25);
-}
-
-/* LISTA DE PROYECTOS */
-.section-title {
-  margin: 0 0 1.5rem;
-  font-size: 1.3rem;
+  .logout {
+    background: transparent;
+    border-color: #f97373;
+    color: #f97373;
+  }
 }
 
 .empty {
@@ -85,6 +182,7 @@ $accent: #3b82f6;
   color: $text-muted;
 }
 
+/* LISTA DE PROYECTOS */
 .list {
   display: flex;
   flex-direction: column;
@@ -93,18 +191,17 @@ $accent: #3b82f6;
 
 .proyecto {
   background: #0a0f1f;
-  border: 1px solid $border;
   border-radius: 16px;
-  padding: 1.2rem;
+  border: 1px solid $border;
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   gap: 1rem;
 }
 
-/* INFORMACIÓN DEL PROYECTO */
 .info h3 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .badges {
@@ -119,26 +216,38 @@ $accent: #3b82f6;
     font-size: 0.75rem;
   }
 
-  .Academico { background: rgba(59,130,246,0.2); }
-  .Laboral { background: rgba(16,185,129,0.2); }
+  .Academico {
+    background: rgba(59,130,246,0.2);
+  }
+
+  .Laboral {
+    background: rgba(16,185,129,0.2);
+  }
+
+  .participacion {
+    background: rgba(148,163,184,0.2);
+  }
 }
 
 .descripcion {
   margin: 0.5rem 0;
-  color: $text-main;
 }
 
 .tecnologias {
-  margin: 0.2rem 0;
+  margin: 0;
+  font-size: 0.9rem;
   color: $text-muted;
 
-  strong { color: $text-main; }
+  strong {
+    color: $text-main;
+  }
 }
 
 .links a {
+  font-size: 0.85rem;
   color: #60a5fa;
-  text-decoration: none;
   margin-right: 0.8rem;
+  text-decoration: none;
 
   &:hover {
     text-decoration: underline;
@@ -146,10 +255,11 @@ $accent: #3b82f6;
 }
 
 .delete-btn {
+  align-self: flex-start;
   background: transparent;
   border: none;
-  color: #f87171;
-  font-size: 0.9rem;
+  color: #f97373;
+  font-size: 0.85rem;
   cursor: pointer;
 
   &:hover {
@@ -157,11 +267,11 @@ $accent: #3b82f6;
   }
 }
 
-/* MODAL */
+/* MODAL (igual que ya tenías) */
 .modal-bg {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.55);
   backdrop-filter: blur(3px);
   z-index: 10;
 }
@@ -211,8 +321,8 @@ $accent: #3b82f6;
 
     .cancel {
       background: transparent;
-      color: $text-muted;
       border: 1px solid $border;
+      color: $text-muted;
       padding: 0.5rem 1rem;
       border-radius: 10px;
     }

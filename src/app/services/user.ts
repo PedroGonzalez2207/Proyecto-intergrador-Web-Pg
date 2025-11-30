@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore'
+import { Firestore, collection, collectionData, doc, docData, getDoc, setDoc, updateDoc } from '@angular/fire/firestore'
 import { Observable } from 'rxjs';
 import { AppUser, Role } from '../models/app-user';
 
@@ -43,5 +43,10 @@ export class User {
     await updateDoc(ref, data);
   }
 
+  // Obtener un usuario por UID (para el perfil del programador)
+  getUserByUid(uid: string): Observable<AppUser | null> {
+    const ref = doc(this.firestore, 'users', uid);
+    return docData(ref, { idField: 'uid' }) as Observable<AppUser | null>;
+  }
 
 }
