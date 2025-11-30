@@ -1,7 +1,11 @@
 <div class="page-container">
 
   <div class="card">
-    <h1>Gestión de Usuarios (Admin)</h1>
+
+    <div class="card-header">
+      <h1>Gestión de Usuarios</h1>
+      <button class="logout" (click)="logout()">Cerrar sesión</button>
+    </div>
 
     <table>
       <thead>
@@ -23,10 +27,36 @@
             <button (click)="cambiarRol(u, 'Admin')">Admin</button>
             <button (click)="cambiarRol(u, 'Programador')">Programador</button>
             <button (click)="cambiarRol(u, 'Usuario')">Usuario</button>
+
+            <button
+              *ngIf="u.role === 'Programador'"
+              (click)="editarProgramador(u)">
+              Editar perfil
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- Editor de perfil Programador -->
+    <div class="editor" *ngIf="selectedUser as su">
+      <h2>Perfil de {{ su.displayName || su.email }}</h2>
+
+      <div class="form-grid">
+        <label>Especialidad<input type="text" [(ngModel)]="especialidad"></label>
+        <label>Foto de perfil (URL)<input type="text" [(ngModel)]="fotoPerfil"></label>
+        <label class="full">Descripción<textarea rows="3" [(ngModel)]="descripcion"></textarea></label>
+        <label>GitHub<input type="text" [(ngModel)]="github"></label>
+        <label>LinkedIn<input type="text" [(ngModel)]="linkedin"></label>
+        <label>Portafolio<input type="text" [(ngModel)]="portfolio"></label>
+        <label>Twitter<input type="text" [(ngModel)]="twitter"></label></div>
+        
+      <div class="editor-actions">
+        <button (click)="guardarPerfilProgramador()">Guardar</button>
+        <button (click)="cancelarEdicion()">Cancelar</button>
+      </div>
+    </div>
+
   </div>
 
 </div>

@@ -1,15 +1,14 @@
 // ──────────────────────────
-// Paleta de colores (MISMA DEL LOGIN)
+// Paleta (igual que login)
 // ──────────────────────────
-$bg-left: #020617;
-$bg-right: #020617;
+$bg: #020617;
 $card: #020617;
 $border-soft: #1f2937;
 $text-main: #e5e7eb;
 $text-muted: #9ca3af;
 
 // ──────────────────────────
-// CONTENEDOR GENERAL
+// LAYOUT GENERAL
 // ──────────────────────────
 :host {
   display: block;
@@ -21,17 +20,11 @@ $text-muted: #9ca3af;
   box-sizing: border-box;
 }
 
-// ──────────────────────────
-// LAYOUT PRINCIPAL
-// ──────────────────────────
 .page-container {
   max-width: 1100px;
   margin: 0 auto;
 }
 
-// ──────────────────────────
-// TARJETA DEL ADMIN (igual estilo)
-// ──────────────────────────
 .card {
   background: $card;
   border: 1px solid $border-soft;
@@ -41,22 +34,42 @@ $text-muted: #9ca3af;
 }
 
 // ──────────────────────────
-// TÍTULO
+// Header
 // ──────────────────────────
-h1 {
-  font-size: 2.1rem;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
-  text-align: center;
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h1 {
+    font-size: 2rem;
+    margin: 0;
+  }
+
+  .logout {
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid $border-soft;
+    background: #111827;
+    color: $text-main;
+    cursor: pointer;
+    transition: 0.2s;
+
+    &:hover {
+      background: #1f2937;
+      transform: scale(1.03);
+    }
+  }
 }
 
 // ──────────────────────────
-// TABLA
+// Tabla
 // ──────────────────────────
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 
   th, td {
     padding: 0.75rem 1rem;
@@ -79,16 +92,83 @@ table {
   }
 }
 
-// ──────────────────────────
-// BOTONES
-// ──────────────────────────
 .actions {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+
+  button {
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid $border-soft;
+    background: #111827;
+    color: $text-main;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.2s;
+
+    &:hover {
+      background: #1f2937;
+      transform: scale(1.03);
+    }
+  }
+}
+
+// ──────────────────────────
+// Editor de perfil
+// ──────────────────────────
+.editor {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid $border-soft;
+
+  h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+
+  .full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+    color: $text-muted;
+
+    input,
+    textarea {
+      margin-top: 0.25rem;
+      padding: 0.45rem 0.6rem;
+      border-radius: 10px;
+      border: 1px solid $border-soft;
+      background: #020617;
+      color: $text-main;
+      outline: none;
+
+      &:focus {
+        border-color: #3b82f6;
+      }
+    }
+  }
+}
+
+.editor-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
   gap: 0.5rem;
 
   button {
-    padding: 0.4rem 0.8rem;
-    border-radius: 10px;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
     border: 1px solid $border-soft;
     background: #111827;
     color: $text-main;
@@ -97,7 +177,7 @@ table {
 
     &:hover {
       background: #1f2937;
-      transform: scale(1.02);
+      transform: scale(1.03);
     }
   }
 }

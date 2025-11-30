@@ -37,4 +37,11 @@ export class User {
     await updateDoc(ref, {role});
   }
 
+  //Actualizar datos de programador (especialidad, descripción, redes, etc.)
+  async updateProgrammerProfile(uid: string, data: Partial<AppUser>): Promise<void>{
+    const ref = doc(this.firestore, 'users', uid);
+    await updateDoc(ref, data);
+  }
+
+
 }

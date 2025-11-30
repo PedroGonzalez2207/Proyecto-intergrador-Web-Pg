@@ -1,10 +1,17 @@
 import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
 import { AdminUsuarios } from './pages/admin-usuarios/admin-usuarios';
+import { Programador } from './pages/programador/programador';
+import { Usuario } from './pages/usuario/usuario';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: Login },
-  { path: 'admin/usuarios', component: AdminUsuarios },
-  { path: '**', redirectTo: 'login' }
+  {path: '', redirectTo: 'login', pathMatch: 'full'},
+
+  {path: 'login', component: Login},
+
+  {path: 'admin/usuarios', component: AdminUsuarios},
+  {path: 'programador', component: Programador},
+  {path: 'usuario', component: Usuario},
+
+  {path: '**', redirectTo: 'login'}
 ];
