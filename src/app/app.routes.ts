@@ -2,7 +2,10 @@ import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
 import { AdminUsuarios } from './pages/admin-usuarios/admin-usuarios';
 import { Programador } from './pages/programador/programador';
+import { ProgramadorPortafolio } from './pages/programador-portafolio/programador-portafolio';
+import { ProgramadorAsesorias } from './pages/programador-asesorias/programador-asesorias';
 import { Usuario } from './pages/usuario/usuario';
+
 
 export const routes: Routes = [
   {path: '', redirectTo: 'login', pathMatch: 'full'},
@@ -11,6 +14,8 @@ export const routes: Routes = [
 
   {path: 'admin/usuarios', component: AdminUsuarios},
   {path: 'programador', component: Programador},
+  {path: 'programador/portafolio', component: ProgramadorPortafolio},
+  {path: 'programador/asesorias', component: ProgramadorAsesorias},
   {path: 'usuario', component: Usuario},
 
   {path: '**', redirectTo: 'login'}

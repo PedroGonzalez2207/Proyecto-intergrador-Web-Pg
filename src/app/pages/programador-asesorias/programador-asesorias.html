@@ -1,1 +1,75 @@
-<p>programador-asesorias works!</p>
+<div class="page-wrapper">
+
+  <!-- HEADER PRINCIPAL -->
+  <header class="main-header">
+    <h1>Solicitudes de Asesoría</h1>
+    <p class="desc">
+      Administra y responde las solicitudes recibidas por parte de los usuarios.
+    </p>
+
+    <button class="back-btn" routerLink="/programador">← Volver al panel</button>
+  </header>
+
+  <!-- TARJETA PRINCIPAL -->
+  <div class="card">
+
+    <h2 class="section-title">Asesorías Recibidas</h2>
+
+    <p class="empty" *ngIf="!asesorias.length">
+      No tienes solicitudes en este momento.
+    </p>
+
+    <div class="list" *ngIf="asesorias.length">
+      <article class="item" *ngFor="let a of asesorias">
+        
+        <div class="info">
+          <h3>{{ a.usuarioNombre }}</h3>
+
+          <p class="meta">
+            {{ a.fecha }} · {{ a.hora }}
+          </p>
+
+          <p class="comentario" *ngIf="a.comentario">
+            "{{ a.comentario }}"
+          </p>
+
+          <span class="estado" [ngClass]="a.estado">
+            {{ a.estado | titlecase }}
+          </span>
+
+          <p class="respuesta" *ngIf="a.mensajeRespuesta">
+            <strong>Respuesta:</strong> {{ a.mensajeRespuesta }}
+          </p>
+        </div>
+
+        <div class="acciones">
+          <button class="approve" (click)="cambiarEstado(a, 'aprobada')">Aprobar</button>
+          <button class="reject" (click)="cambiarEstado(a, 'rechazada')">Rechazar</button>
+          <button class="pending" (click)="cambiarEstado(a, 'pendiente')">Pendiente</button>
+        </div>
+
+      </article>
+    </div>
+  </div>
+
+  <!-- MODAL PARA FUTURA RESPUESTA -->
+  <div class="modal-bg" *ngIf="modalOpen" (click)="cerrarModal()"></div>
+
+  <div class="modal" *ngIf="modalOpen">
+    <h2>Responder Solicitud</h2>
+
+    <p><strong>De:</strong> {{ asesoriaSeleccionada?.usuarioNombre }}</p>
+    <p><strong>Fecha:</strong> {{ asesoriaSeleccionada?.fecha }} - {{ asesoriaSeleccionada?.hora }}</p>
+
+    <label>
+      Mensaje de respuesta
+      <textarea rows="3"></textarea>
+    </label>
+
+    <div class="modal-actions">
+      <button class="cancel" (click)="cerrarModal()">Cancelar</button>
+      <button class="save">Guardar</button>
+    </div>
+  </div>
+
+</div>

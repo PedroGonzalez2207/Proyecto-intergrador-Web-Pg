@@ -1,1 +1,109 @@
-<p>programador-portafolio works!</p>
+<div class="page-wrapper">
+
+  <!-- ENCABEZADO CON TÍTULO GRANDE -->
+  <header class="main-header">
+    <h1>Portafolio del Programador</h1>
+    <p class="desc">Administra tus proyectos académicos y laborales en un solo lugar.</p>
+
+    <div class="actions">
+      <button class="back-btn" routerLink="/programador">← Volver al panel</button>
+      <button class="create-btn" (click)="abrirModal()">+ Nuevo Proyecto</button>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL TIPO CARD -->
+  <div class="card">
+
+    <h2 class="section-title">Tus Proyectos</h2>
+
+    <p class="empty" *ngIf="!proyectos.length">
+      Aún no registras ningún proyecto. Crea uno con el botón “Nuevo Proyecto”.
+    </p>
+
+    <div class="list" *ngIf="proyectos.length">
+      <article class="proyecto" *ngFor="let p of proyectos">
+        
+        <div class="info">
+          <h3>{{ p.nombre }}</h3>
+
+          <div class="badges">
+            <span class="badge categoria" [ngClass]="p.categoria">{{ p.categoria }}</span>
+            <span class="badge participacion">{{ p.participacion }}</span>
+          </div>
+
+          <p class="descripcion">{{ p.descripcion }}</p>
+
+          <p class="tecnologias" *ngIf="p.tecnologias">
+            <strong>Tecnologías:</strong> {{ p.tecnologias }}
+          </p>
+
+          <div class="links">
+            <a *ngIf="p.repoUrl" [href]="p.repoUrl" target="_blank">Repositorio</a>
+            <a *ngIf="p.demoUrl" [href]="p.demoUrl" target="_blank">Demo</a>
+          </div>
+        </div>
+
+        <button class="delete-btn" (click)="eliminarProyecto(p.id)">Eliminar</button>
+      </article>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-bg" *ngIf="modalOpen" (click)="cerrarModal()"></div>
+
+  <div class="modal" *ngIf="modalOpen">
+    <h2>Nuevo Proyecto</h2>
+
+    <form (ngSubmit)="agregarProyecto()">
+
+      <label>
+        Nombre *
+        <input type="text" [(ngModel)]="nuevo.nombre" name="nombre" required>
+      </label>
+
+      <label>
+        Categoría *
+        <select [(ngModel)]="nuevo.categoria" name="categoria">
+          <option value="Academico">Académico</option>
+          <option value="Laboral">Laboral</option>
+        </select>
+      </label>
+
+      <label>
+        Participación *
+        <select [(ngModel)]="nuevo.participacion" name="participacion">
+          <option value="Frontend">Frontend</option>
+          <option value="Backend">Backend</option>
+          <option value="BaseDeDatos">Base de Datos</option>
+          <option value="Fullstack">Fullstack</option>
+        </select>
+      </label>
+
+      <label>
+        Descripción *
+        <textarea rows="3" [(ngModel)]="nuevo.descripcion" name="descripcion"></textarea>
+      </label>
+
+      <label>
+        Tecnologías
+        <input type="text" [(ngModel)]="nuevo.tecnologias" name="tecnologias">
+      </label>
+
+      <label>
+        Repositorio
+        <input type="text" [(ngModel)]="nuevo.repoUrl" name="repoUrl">
+      </label>
+
+      <label>
+        Demo
+        <input type="text" [(ngModel)]="nuevo.demoUrl" name="demoUrl">
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="cancel" (click)="cerrarModal()">Cancelar</button>
+        <button type="submit" class="save">Guardar</button>
+      </div>
+    </form>
+  </div>
+
+</div>
