@@ -1,0 +1,116 @@
+<div class="page-container">
+
+  <!-- HEADER SUPERIOR -->
+  <header class="main-header">
+    <h1>Panel de Administrador</h1>
+    <p class="desc">
+      Configura la disponibilidad de los programadores para las asesorías.
+    </p>
+  </header>
+
+  <div class="layout">
+
+    <!-- PANEL IZQUIERDO: ADMIN (solo muestra info si está logueado) -->
+    <aside class="profile-card">
+      <ng-container *ngIf="auth.user$ | async as admin">
+        <div class="avatar">
+          <img *ngIf="admin.photoURL" [src]="admin.photoURL" alt="Foto de administrador">
+          <div class="initials" *ngIf="!admin.photoURL">
+            {{ ((admin.displayName || admin.email || '?') + '') | slice:0:1 | uppercase }}
+          </div>
+        </div>
+
+        <h2>{{ admin.displayName || 'Administrador' }}</h2>
+        <p class="email">{{ admin.email }}</p>
+        <p class="rol">Rol: Administrador</p>
+      </ng-container>
+    </aside>
+
+    <!-- PANEL DERECHO: GESTIÓN DE ASESORÍAS -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2>Gestión de Asesorías</h2>
+          <p class="section-subtitle">
+            Registra los horarios de disponibilidad de cada programador.
+          </p>
+        </div>
+
+        <div class="card-actions" *ngIf="auth.user$ | async">
+          <button routerLink="/admin/usuarios">Usuarios</button>
+          <button class="logout" (click)="logout()">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <!-- Selección de programador -->
+      <div class="selector-programador">
+        <label>
+          Programador
+          <select
+            [(ngModel)]="selectedProgrammer"
+            name="programador"
+            (ngModelChange)="onProgramadorChange()">
+
+            <option [ngValue]="null">Seleccione un programador</option>
+
+            <!-- Solo programadores -->
+            <ng-container *ngFor="let p of (programadores$ | async)">
+              <option *ngIf="p.role === 'Programador'" [ngValue]="p">
+                {{ p.displayName || p.email }}
+              </option>
+            </ng-container>
+          </select>
+        </label>
+      </div>
+
+      <!-- Si hay programador seleccionado, mostramos horarios -->
+      <ng-container *ngIf="selectedProgrammer as prog">
+
+        <div class="slots" *ngIf="disponibilidad$ | async as slots">
+          <h3>Horarios registrados para {{ prog.displayName || prog.email }}</h3>
+
+          <p *ngIf="!slots.length" class="empty">
+            Este programador aún no tiene horarios de disponibilidad.
+          </p>
+
+          <ul *ngIf="slots.length">
+            <li *ngFor="let s of slots">
+              <span>{{ s.fecha }} — {{ s.horaInicio }} a {{ s.horaFin }}</span>
+              <button (click)="eliminarSlot(s.id)">Eliminar</button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Formulario para nuevo horario -->
+        <div class="nuevo-slot">
+          <h3>Agregar nuevo horario</h3>
+
+          <form (ngSubmit)="guardarDisponibilidad()">
+            <div class="form-grid">
+              <label>
+                Fecha
+                <input type="date" [(ngModel)]="fecha" name="fecha">
+              </label>
+
+              <label>
+                Hora inicio
+                <input type="time" [(ngModel)]="horaInicio" name="horaInicio">
+              </label>
+
+              <label>
+                Hora fin
+                <input type="time" [(ngModel)]="horaFin" name="horaFin">
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit">Guardar horario</button>
+            </div>
+          </form>
+        </div>
+
+      </ng-container>
+
+    </section>
+  </div>
+</div>

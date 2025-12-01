@@ -1,41 +1,44 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet, Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { Auth } from './services/auth';
 import { AppUser } from './models/app-user';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
-  template: `<router-outlet />`,
-  styleUrls: ['./app.scss']
+  imports: [CommonModule, RouterOutlet],
+  templateUrl: './app.html',
+  styleUrls: ['./app.scss'],
 })
-export class App {
+export class App implements OnInit {
 
-  private auth = inject(Auth);
-  private router = inject(Router);
+  constructor(
+    private auth: Auth,
+    private router: Router,
+  ) {}
 
-  constructor() {
+  ngOnInit(): void {
 
     this.auth.user$.subscribe(async firebaseUser => {
-      if (!firebaseUser) return;
+      console.log('firebaseUser:', firebaseUser);
 
-      // Obtener usuario de Firestore
-      const appUser: AppUser = await this.auth.ensureUserInBd(firebaseUser);
-
-      // Navegar según el rol
-      switch (appUser.role) {
-        case 'Admin':
-          this.router.navigate(['/admin/usuarios']);
-          break;
-        case 'Programador':
-          this.router.navigate(['/programador/portafolio']);
-          break;
-        default:
-          this.router.navigate(['/usuario/portafolios']);
-          break;
+      // Si no hay usuario → Mantener en login
+      if (!firebaseUser) {
+        return;
       }
+
+      // Crear / leer el usuario en Firestore
+      const appUser: AppUser = await this.auth.ensureUserInBd(firebaseUser);
+      console.log('appUser desde Firestore:', appUser);
+
+      // Si por alguna razón no tiene rol definido → Usuario normal
+      if (!appUser.role) {
+        appUser.role = 'Usuario';
+      }
+
+      // Redirigir según rol
+      this.auth.navigateByRole(appUser.role);
     });
   }
 }

@@ -1,62 +1,128 @@
 <div class="page-container">
+  
+  <header class="main-header">
+    <h1>Panel de Administrador</h1>
+    <p class="desc">
+      Gestiona usuarios, roles y perfiles de programadores.
+    </p>
+  </header>
 
-  <div class="card">
+  <div class="layout">
+    
+    <aside class="profile-card">
+      <ng-container *ngIf="auth.user$ | async as admin">
+        <div class="avatar">
+          <img *ngIf="admin.photoURL"
+               [src]="admin.photoURL"
+               alt="Foto de administrador">
+          <div class="initials" *ngIf="!admin.photoURL">
+            {{ ((admin.displayName || admin.email || '?') + '') | slice:0:1 | uppercase }}
+          </div>
+        </div>
 
-    <div class="card-header">
-      <h1>Gestión de Usuarios</h1>
-      <button class="logout" (click)="logout()">Cerrar sesión</button>
-    </div>
+        <h2>{{ admin.displayName || 'Administrador' }}</h2>
+        <p class="email">{{ admin.email }}</p>
+        <p class="rol">Rol: Administrador</p>
+      </ng-container>
+    </aside>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Rol</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+    <section class="card">
 
-      <tbody>
-        <tr *ngFor="let u of (users$ | async)">
-          <td>{{ u.displayName || 'Sin nombre' }}</td>
-          <td>{{ u.email }}</td>
-          <td>{{ u.role }}</td>
+      <div class="card-header">
+        <div>
+          <h2>Gestión de Usuarios</h2>
+          <p class="section-subtitle">
+            Asigna roles y edita el perfil de los programadores.
+          </p>
+        </div>
 
-          <td class="actions">
-            <button (click)="cambiarRol(u, 'Admin')">Admin</button>
-            <button (click)="cambiarRol(u, 'Programador')">Programador</button>
-            <button (click)="cambiarRol(u, 'Usuario')">Usuario</button>
-
-            <button
-              *ngIf="u.role === 'Programador'"
-              (click)="editarProgramador(u)">
-              Editar perfil
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Editor de perfil Programador -->
-    <div class="editor" *ngIf="selectedUser as su">
-      <h2>Perfil de {{ su.displayName || su.email }}</h2>
-
-      <div class="form-grid">
-        <label>Especialidad<input type="text" [(ngModel)]="especialidad"></label>
-        <label>Foto de perfil (URL)<input type="text" [(ngModel)]="fotoPerfil"></label>
-        <label class="full">Descripción<textarea rows="3" [(ngModel)]="descripcion"></textarea></label>
-        <label>GitHub<input type="text" [(ngModel)]="github"></label>
-        <label>LinkedIn<input type="text" [(ngModel)]="linkedin"></label>
-        <label>Portafolio<input type="text" [(ngModel)]="portfolio"></label>
-        <label>Twitter<input type="text" [(ngModel)]="twitter"></label></div>
-        
-      <div class="editor-actions">
-        <button (click)="guardarPerfilProgramador()">Guardar</button>
-        <button (click)="cancelarEdicion()">Cancelar</button>
+        <div class="card-actions" *ngIf="auth.user$ | async">
+          <button routerLink="/admin/asesorias">
+            Gestión de asesorías
+          </button>
+          <button class="logout" (click)="logout()">
+            Cerrar sesión
+          </button>
+        </div>
       </div>
-    </div>
 
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let u of (users$ | async)">
+            <td>{{ u.displayName || 'Sin nombre' }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
+
+            <td class="actions">
+              <button (click)="cambiarRol(u, 'Admin')">Admin</button>
+              <button (click)="cambiarRol(u, 'Programador')">Programador</button>
+              <button (click)="cambiarRol(u, 'Usuario')">Usuario</button>
+
+              <button
+                *ngIf="u.role === 'Programador'"
+                (click)="editarProgramador(u)">
+                Editar perfil
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="editor" *ngIf="selectedUser as su">
+        <h2>Perfil de {{ su.displayName || su.email }}</h2>
+
+        <div class="form-grid">
+          <label>
+            Especialidad
+            <input type="text" [(ngModel)]="especialidad">
+          </label>
+
+          <label>
+            Foto de perfil (URL)
+            <input type="text" [(ngModel)]="fotoPerfil">
+          </label>
+
+          <label class="full">
+            Descripción
+            <textarea rows="3" [(ngModel)]="descripcion"></textarea>
+          </label>
+
+          <label>
+            GitHub
+            <input type="text" [(ngModel)]="github">
+          </label>
+
+          <label>
+            LinkedIn
+            <input type="text" [(ngModel)]="linkedin">
+          </label>
+
+          <label>
+            Portafolio
+            <input type="text" [(ngModel)]="portfolio">
+          </label>
+
+          <label>
+            Twitter
+            <input type="text" [(ngModel)]="twitter">
+          </label>
+        </div>
+        
+        <div class="editor-actions">
+          <button (click)="guardarPerfilProgramador()">Guardar</button>
+          <button (click)="cancelarEdicion()">Cancelar</button>
+        </div>
+      </div>
+
+    </section>
   </div>
-
 </div>

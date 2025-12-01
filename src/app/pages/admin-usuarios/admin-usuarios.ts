@@ -1,6 +1,7 @@
-import { Component , OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { AppUser, Role } from '../../models/app-user';
@@ -10,7 +11,7 @@ import { Auth } from '../../services/auth';
 @Component({
   selector: 'app-admin-usuarios',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './admin-usuarios.html',
   styleUrls: ['./admin-usuarios.scss'],
 })
@@ -32,20 +33,19 @@ export class AdminUsuarios implements OnInit {
 
   constructor(
     private userService: User,
-    private auth: Auth,
+    public auth: Auth,   
+    private router: Router
   ) {}
   
   ngOnInit(): void {
     this.users$ = this.userService.getAllUsers();
   }
 
-  //Cambiar rol usuario
-  cambiarRol(user: AppUser, rol: Role){
+  cambiarRol(user: AppUser, rol: Role) {
     this.userService.updateRol(user.uid, rol);
   }
 
-  //Abrir editor de perfil programador
-  editarProgramador(user: AppUser){
+  editarProgramador(user: AppUser) {
     this.selectedUser = user;
 
     this.especialidad = user.especialidad || '';
@@ -58,8 +58,7 @@ export class AdminUsuarios implements OnInit {
     this.twitter = user.redes?.twitter || '';
   }
 
-  //Guardar cambios de perfil
-  async guardarPerfilProgramador(){
+  async guardarPerfilProgramador() {
     if (!this.selectedUser) return;
 
     await this.userService.updateProgrammerProfile(this.selectedUser.uid, {
@@ -77,13 +76,12 @@ export class AdminUsuarios implements OnInit {
     this.selectedUser = null;
   }
 
-  cancelarEdicion(){
+  cancelarEdicion() {
     this.selectedUser = null;
   }
 
-  //Cerrar sesión
-  async logout(){
+  async logout() {
     await this.auth.logout();
+    this.router.navigate(['/login']);
   }
-
 }

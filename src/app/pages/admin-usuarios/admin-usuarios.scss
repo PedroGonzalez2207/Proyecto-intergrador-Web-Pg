@@ -21,10 +21,140 @@ $text-muted: #9ca3af;
 }
 
 .page-container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
+// HEADER SUPERIOR
+.main-header {
+  margin-bottom: 2.5rem;
+
+  h1 {
+    font-size: 2rem;
+    margin: 0;
+  }
+
+  .desc {
+    margin: 0.4rem 0 0;
+    font-size: 0.95rem;
+    color: $text-muted;
+  }
+}
+
+// ──────────────────────────
+// LAYOUT DOS COLUMNAS
+// ──────────────────────────
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.5rem;
+  align-items: flex-start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ──────────────────────────
+// PANEL PERFIL ADMIN (IZQUIERDA)
+// ──────────────────────────
+.profile-card {
+  background: $card;
+  border: 1px solid $border-soft;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 0 25px rgba(0,0,0,0.2);
+  text-align: center;
+
+  .avatar {
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: center;
+
+    img {
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
+      object-fit: cover;
+      border: 2px solid #3b82f6;
+    }
+
+    .initials {
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
+      background: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      border: 2px solid #3b82f6;
+    }
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+
+  .email {
+    margin: 0.25rem 0;
+    font-size: 0.85rem;
+    color: $text-muted;
+  }
+
+  .rol {
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .hint {
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    color: $text-muted;
+  }
+
+  .profile-actions {
+    margin-top: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    button {
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      border: 1px solid $border-soft;
+      background: #111827;
+      color: $text-main;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: 0.2s;
+
+      &:hover {
+        background: #1f2937;
+        transform: scale(1.03);
+      }
+    }
+
+    .primary {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    .logout {
+      background: transparent;
+      border-color: #f97373;
+      color: #f97373;
+    }
+  }
+}
+
+// ──────────────────────────
+// TARJETA DERECHA (GESTIÓN USUARIOS)
+// ──────────────────────────
 .card {
   background: $card;
   border: 1px solid $border-soft;
@@ -33,27 +163,37 @@ $text-muted: #9ca3af;
   box-shadow: 0 0 25px rgba(0,0,0,0.2);
 }
 
-// ──────────────────────────
-// Header
-// ──────────────────────────
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 
-  h1 {
-    font-size: 2rem;
+  h2 {
+    font-size: 1.4rem;
     margin: 0;
   }
 
-  .logout {
-    padding: 0.4rem 0.9rem;
-    border-radius: 999px;
+  .section-subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+    color: $text-muted;
+  }
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  button {
+    padding: 0.45rem 1.1rem;
+    border-radius: 12px;
     border: 1px solid $border-soft;
     background: #111827;
     color: $text-main;
     cursor: pointer;
+    font-size: 0.85rem;
     transition: 0.2s;
 
     &:hover {
@@ -61,7 +201,14 @@ $text-muted: #9ca3af;
       transform: scale(1.03);
     }
   }
+
+  .logout {
+    background: transparent;
+    border-color: #f97373;
+    color: #f97373;
+  }
 }
+
 
 // ──────────────────────────
 // Tabla
@@ -71,7 +218,8 @@ table {
   border-collapse: collapse;
   margin-top: 0.5rem;
 
-  th, td {
+  th,
+  td {
     padding: 0.75rem 1rem;
     text-align: left;
   }
