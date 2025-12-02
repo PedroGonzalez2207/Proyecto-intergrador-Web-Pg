@@ -1,1 +1,145 @@
-<p>usuario works!</p>
+<div class="page-wrapper">
+  <header class="main-header">
+    <h1>Explora portafolios y agenda asesorías</h1>
+    <p class="desc">
+      Elige un programador, revisa su portafolio y solicita una asesoría indicando
+      fecha, hora y el motivo de tu consulta.
+    </p>
+  </header>
+
+  <div class="layout-3">
+    <!-- COLUMNA 1: PERFIL -->
+    <aside class="perfil-card">
+      <ng-container *ngIf="isLoggedIn && usuario as u; else sinUsuario">
+        <div class="perfil-info">
+          <img
+            src="https://i.imgur.com/tXWf9Qj.png"
+            class="foto"
+            alt="Usuario"
+          />
+          <h3>{{ u.nombre }}</h3>
+          <p class="rol">Usuario externo</p>
+
+          <div class="datos">
+            <p><strong>Email:</strong> {{ u.email }}</p>
+            <p><strong>Miembro desde:</strong> {{ u.miembroDesde }}</p>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #sinUsuario>
+        <div class="perfil-info empty">
+          <p class="rol">Inicia sesión para ver tu perfil.</p>
+        </div>
+      </ng-template>
+    </aside>
+
+    <!-- COLUMNA 2: PORTAFOLIOS -->
+    <section class="card">
+      <h2 class="section-title">Portafolios disponibles</h2>
+      <p class="section-subtitle">
+        Selecciona el portafolio del programador con el que deseas agendar una
+        asesoría.
+      </p>
+
+      <p class="empty" *ngIf="!portafolios.length">
+        Aún no hay portafolios registrados.
+      </p>
+
+      <div class="list" *ngIf="portafolios.length">
+        <article class="portafolio" *ngFor="let p of portafolios">
+          <div class="info">
+            <h3>{{ p.titulo }}</h3>
+            <p class="programador">Por {{ p.programadorNombre }}</p>
+
+            <p class="meta">
+              <span class="badge" *ngIf="p.especialidad">
+                {{ p.especialidad }}
+              </span>
+              <span class="badge soft" *ngIf="p.experiencia">
+                {{ p.experiencia }}
+              </span>
+            </p>
+
+            <p class="resumen" *ngIf="p.resumen">{{ p.resumen }}</p>
+            <p class="tecnologias" *ngIf="p.tecnologias">
+              <strong>Tecnologías:</strong> {{ p.tecnologias }}
+            </p>
+          </div>
+
+          <div class="acciones">
+            <button type="button" (click)="verDetalle(p)">Ver detalles</button>
+            <button type="button" (click)="seleccionarPortafolio(p)">
+              Agendar asesoría
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <div class="detalle-portafolio" *ngIf="detalleSeleccionado">
+        <h3>Detalle del portafolio</h3>
+        <p>
+          <strong>Título:</strong> {{ detalleSeleccionado.titulo }}
+        </p>
+        <p>
+          <strong>Programador:</strong>
+          {{ detalleSeleccionado.programadorNombre }}
+        </p>
+        <p *ngIf="detalleSeleccionado.especialidad">
+          <strong>Especialidad:</strong>
+          {{ detalleSeleccionado.especialidad }}
+        </p>
+        <p *ngIf="detalleSeleccionado.experiencia">
+          <strong>Experiencia:</strong>
+          {{ detalleSeleccionado.experiencia }}
+        </p>
+        <p *ngIf="detalleSeleccionado.tecnologias">
+          <strong>Tecnologías:</strong>
+          {{ detalleSeleccionado.tecnologias }}
+        </p>
+      </div>
+    </section>
+
+    <!-- COLUMNA 3: AGENDAR -->
+    <aside class="side-card">
+      <h2 class="section-title">Agendar asesoría</h2>
+
+      <p class="section-subtitle" *ngIf="!seleccionado">
+        Primero selecciona un portafolio de la lista para agendar una asesoría.
+      </p>
+
+      <form *ngIf="seleccionado" (ngSubmit)="enviarSolicitud()" class="form">
+        <div class="field">
+          <label>Programador</label>
+          <input
+            type="text"
+            [value]="seleccionado.programadorNombre"
+            disabled
+          />
+        </div>
+
+        <div class="field">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="fecha" name="fecha" required />
+        </div>
+
+        <div class="field">
+          <label>Hora</label>
+          <input type="time" [(ngModel)]="hora" name="hora" required />
+        </div>
+
+        <div class="field">
+          <label>Comentario (opcional)</label>
+          <textarea
+            [(ngModel)]="comentario"
+            name="comentario"
+            rows="3"
+            placeholder="Describe brevemente el motivo de la asesoría"
+          ></textarea>
+        </div>
+
+        <button type="submit" class="primary">Enviar solicitud</button>
+      </form>
+    </aside>
+  </div>
+</div>
