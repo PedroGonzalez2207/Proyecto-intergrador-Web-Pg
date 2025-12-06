@@ -16,13 +16,10 @@ import { Auth } from '../../services/auth';
   styleUrls: ['./admin-usuarios.scss'],
 })
 export class AdminUsuarios implements OnInit {
-
   users$!: Observable<AppUser[]>;
 
-  // Usuario seleccionado para editar perfil
   selectedUser: AppUser | null = null;
 
-  // Campos del formulario de programador
   especialidad = '';
   descripcion = '';
   fotoPerfil = '';
@@ -31,12 +28,15 @@ export class AdminUsuarios implements OnInit {
   portfolio = '';
   twitter = '';
 
+  nuevoNombre = '';
+  nuevoEmail = '';
+
   constructor(
     private userService: User,
-    public auth: Auth,   
+    public auth: Auth,
     private router: Router
   ) {}
-  
+
   ngOnInit(): void {
     this.users$ = this.userService.getAllUsers();
   }
@@ -70,7 +70,7 @@ export class AdminUsuarios implements OnInit {
         linkedin: this.linkedin,
         portfolio: this.portfolio,
         twitter: this.twitter,
-      }
+      },
     });
 
     this.selectedUser = null;
@@ -78,6 +78,29 @@ export class AdminUsuarios implements OnInit {
 
   cancelarEdicion() {
     this.selectedUser = null;
+  }
+
+  async crearProgramador() {
+    if (!this.nuevoNombre.trim() || !this.nuevoEmail.trim()) {
+      return;
+    }
+
+    const uid = `manual_${Date.now()}`;
+
+    const nuevo: AppUser = {
+      uid,
+      email: this.nuevoEmail.toLowerCase(),
+      displayName: this.nuevoNombre,
+      photoURL: null,
+      role: 'Programador',
+    };
+
+    await this.userService.saveUser(nuevo);
+
+    this.nuevoNombre = '';
+    this.nuevoEmail = '';
+
+    this.users$ = this.userService.getAllUsers();
   }
 
   async logout() {

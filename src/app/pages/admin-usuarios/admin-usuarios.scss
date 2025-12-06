@@ -1,53 +1,76 @@
-// ──────────────────────────
-// Paleta (igual que login)
-// ──────────────────────────
-$bg: #020617;
-$card: #020617;
+$bg-left: #020617;
+$bg-right: #020617;
+$card-left: #020617;
+$card-right: #020617;
 $border-soft: #1f2937;
 $text-main: #e5e7eb;
 $text-muted: #9ca3af;
+$blue: #3b82f6;
+$blue-light: #60a5fa;
+$red: #ef4444;
 
-// ──────────────────────────
-// LAYOUT GENERAL
-// ──────────────────────────
+// Layout base del componente
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background: radial-gradient(circle at top right, #000 0%, #020617 55%, #000 100%);
   color: $text-main;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  padding: 3rem 1rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+// Header
+.main-header {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.header-content {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+// Footer
+.main-footer {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.8rem;
+}
+
+// Main layout 
+.page-main {
+  flex: 1;
+  max-width: 1300px;
+  margin: 2rem auto 3rem;
+  padding: 0 1.5rem;
   box-sizing: border-box;
 }
 
-.page-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-// HEADER SUPERIOR
-.main-header {
-  margin-bottom: 2.5rem;
-
-  h1 {
-    font-size: 2rem;
-    margin: 0;
-  }
-
-  .desc {
-    margin: 0.4rem 0 0;
-    font-size: 0.95rem;
-    color: $text-muted;
-  }
-}
-
-// ──────────────────────────
-// LAYOUT DOS COLUMNAS
-// ──────────────────────────
 .layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 2.3fr) minmax(260px, 0.9fr);
+  gap: 2rem;
   align-items: flex-start;
 
   @media (max-width: 900px) {
@@ -55,231 +78,243 @@ $text-muted: #9ca3af;
   }
 }
 
-// ──────────────────────────
-// PANEL PERFIL ADMIN (IZQUIERDA)
-// ──────────────────────────
+.main-card {
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 1.4rem;
+  border: 1px solid rgba(15, 23, 42, 0.9);
+  padding: 2rem 2.2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+}
+
 .profile-card {
-  background: $card;
-  border: 1px solid $border-soft;
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: 0 0 25px rgba(0,0,0,0.2);
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 1.4rem;
+  border: 1px solid rgba(15, 23, 42, 0.95);
+  padding: 1.7rem 1.6rem 1.9rem;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.9);
+  max-width: 360px;
+  width: 100%;
+  box-sizing: border-box;
+  justify-self: end;
   text-align: center;
 
+  @media (max-width: 900px) {
+    max-width: 100%;
+    justify-self: stretch;
+    order: -1;
+  }
+}
+
+// Perfil admin 
+.profile-card {
   .avatar {
-    margin-bottom: 0.8rem;
+    width: 86px;
+    height: 86px;
+    border-radius: 999px;
+    margin: 0 auto 1rem auto;
+    border: 2px solid rgba(96, 165, 250, 0.9);
+    overflow: hidden;
     display: flex;
+    align-items: center;
     justify-content: center;
+    background: radial-gradient(circle, #020617 0%, #020617 45%, #000 100%);
 
     img {
-      width: 80px;
-      height: 80px;
-      border-radius: 999px;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      border: 2px solid #3b82f6;
     }
 
     .initials {
-      width: 80px;
-      height: 80px;
-      border-radius: 999px;
-      background: #111827;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.6rem;
-      font-weight: 700;
-      border: 2px solid #3b82f6;
+      font-size: 1.8rem;
+      font-weight: 600;
     }
   }
 
   h2 {
-    margin: 0;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
   }
 
   .email {
-    margin: 0.25rem 0;
-    font-size: 0.85rem;
-    color: $text-muted;
-  }
-
-  .rol {
-    margin-top: 0.25rem;
     font-size: 0.9rem;
-    font-weight: 500;
+    color: $text-muted;
+    margin-bottom: 0.3rem;
+    word-break: break-all;
   }
 
-  .hint {
-    margin-top: 0.6rem;
-    font-size: 0.8rem;
-    color: $text-muted;
+  .role {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.7);
+    display: inline-block;
+    margin-bottom: 1rem;
   }
 
   .profile-actions {
-    margin-top: 1.2rem;
+    margin-top: 0.5rem;
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-
-    button {
-      padding: 0.45rem 1rem;
-      border-radius: 999px;
-      border: 1px solid $border-soft;
-      background: #111827;
-      color: $text-main;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: 0.2s;
-
-      &:hover {
-        background: #1f2937;
-        transform: scale(1.03);
-      }
-    }
-
-    .primary {
-      background: #3b82f6;
-      border-color: #3b82f6;
-      color: white;
-    }
-
-    .logout {
-      background: transparent;
-      border-color: #f97373;
-      color: #f97373;
-    }
+    justify-content: center;
   }
 }
 
-// ──────────────────────────
-// TARJETA DERECHA (GESTIÓN USUARIOS)
-// ──────────────────────────
-.card {
-  background: $card;
-  border: 1px solid $border-soft;
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 0 25px rgba(0,0,0,0.2);
-}
-
-.card-header {
+// Header
+.card-header-admin {
   display: flex;
   justify-content: space-between;
+  gap: 1.5rem;
   align-items: center;
-  margin-bottom: 1rem;
 
-  h2 {
-    font-size: 1.4rem;
+  h1 {
+    font-size: 1.6rem;
     margin: 0;
   }
 
-  .section-subtitle {
-    margin: 0.25rem 0 0;
+  .subtitle {
+    font-size: 0.96rem;
+    color: $text-muted;
+    margin-top: 0.35rem;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.admin-buttons {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.separator {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 1.7rem 0 1.7rem 0;
+}
+
+// Botones
+button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-blue {
+  background: #020617;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: $text-main;
+  padding: 0.45rem 1.3rem;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  transition: background-color 0.18s ease, border-color 0.18s ease,
+    box-shadow 0.18s ease, transform 0.1s ease;
+
+  &:hover {
+    border-color: $blue-light;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+.btn-red {
+  background: #020617;
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  color: #fecaca;
+  padding: 0.45rem 1.3rem;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  transition: background-color 0.18s ease, border-color 0.18s ease,
+    box-shadow 0.18s ease, transform 0.1s ease;
+
+  &:hover {
+    border-color: $red;
+    box-shadow: 0 8px 20px rgba(248, 113, 113, 0.35);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+.btn-lightblue {
+  background: #020617;
+  border: 1px solid rgba(96, 165, 250, 0.8);
+  color: #e0f2fe;
+  padding: 0.45rem 1.3rem;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  transition: background-color 0.18s ease, border-color 0.18s ease,
+    box-shadow 0.18s ease, transform 0.1s ease;
+
+  &:hover {
+    border-color: $blue-light;
+    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.35);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+.btn-small {
+  background: transparent;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.78rem;
+  border: 1px solid rgba(148, 163, 184, 0.8);
+  color: $text-main;
+  margin-bottom: 0.2rem;
+  margin-right: 0.2rem;
+  white-space: nowrap;
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+
+  &:hover {
+    border-color: $blue-light;
+    background: rgba(37, 99, 235, 0.18);
+  }
+}
+
+.btn-outline {
+  border-color: $blue-light;
+}
+
+//Crear programador
+.create-programmer {
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .subtitle {
     font-size: 0.9rem;
     color: $text-muted;
+    margin-bottom: 1.1rem;
   }
 }
 
-.card-actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-
-  button {
-    padding: 0.45rem 1.1rem;
-    border-radius: 12px;
-    border: 1px solid $border-soft;
-    background: #111827;
-    color: $text-main;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: 0.2s;
-
-    &:hover {
-      background: #1f2937;
-      transform: scale(1.03);
-    }
-  }
-
-  .logout {
-    background: transparent;
-    border-color: #f97373;
-    color: #f97373;
-  }
-}
-
-
-// ──────────────────────────
-// Tabla
-// ──────────────────────────
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 0.5rem;
-
-  th,
-  td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-  }
-
-  th {
-    background: rgba(255,255,255,0.04);
-    color: $text-muted;
-    font-weight: 500;
-    border-bottom: 1px solid $border-soft;
-  }
-
-  tr {
-    border-bottom: 1px solid $border-soft;
-  }
-
-  tr:hover {
-    background: rgba(255,255,255,0.05);
-  }
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-
-  button {
-    padding: 0.35rem 0.7rem;
-    border-radius: 999px;
-    border: 1px solid $border-soft;
-    background: #111827;
-    color: $text-main;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: 0.2s;
-
-    &:hover {
-      background: #1f2937;
-      transform: scale(1.03);
-    }
-  }
-}
-
-// ──────────────────────────
-// Editor de perfil
-// ──────────────────────────
-.editor {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid $border-soft;
-
-  h2 {
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
-  }
-}
-
+// Formularios
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1rem 1.4rem;
+  margin-bottom: 1.4rem;
 
   .full {
     grid-column: 1 / -1;
@@ -288,44 +323,149 @@ table {
   label {
     display: flex;
     flex-direction: column;
-    font-size: 0.9rem;
-    color: $text-muted;
+    font-size: 0.86rem;
+    gap: 0.35rem;
+  }
 
-    input,
-    textarea {
-      margin-top: 0.25rem;
-      padding: 0.45rem 0.6rem;
-      border-radius: 10px;
-      border: 1px solid $border-soft;
-      background: #020617;
-      color: $text-main;
+  input,
+  textarea {
+    background: $card-left;
+    border-radius: 0.7rem;
+    border: 1px solid rgba(55, 65, 81, 0.95);
+    padding: 0.55rem 0.75rem;
+    color: $text-main;
+    font-family: inherit;
+    font-size: 0.86rem;
+
+    &:focus {
       outline: none;
-
-      &:focus {
-        border-color: #3b82f6;
-      }
+      border-color: $blue-light;
+      box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.65);
     }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
   }
 }
 
 .editor-actions {
-  margin-top: 1rem;
   display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
 
-  button {
-    padding: 0.45rem 1rem;
+// Tabla de usuarios
+.table-container {
+  margin-top: 0.6rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(31, 41, 55, 0.95);
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.98);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+th,
+td {
+  padding: 0.6rem 0.9rem;
+  text-align: left;
+}
+
+thead {
+  background: rgba(15, 23, 42, 1);
+
+  th {
+    font-weight: 500;
+    color: $text-muted;
+    border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+  }
+}
+
+tbody tr:nth-child(even) {
+  background: rgba(15, 23, 42, 0.92);
+}
+
+tbody tr:nth-child(odd) {
+  background: rgba(15, 23, 42, 0.82);
+}
+
+.th-actions {
+  width: 260px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-start;
+}
+
+.role-select {
+  label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8rem;
+    color: $text-muted;
+    gap: 0.2rem;
+  }
+
+  select {
+    background: $card-left;
     border-radius: 999px;
-    border: 1px solid $border-soft;
-    background: #111827;
+    border: 1px solid rgba(55, 65, 81, 0.95);
+    padding: 0.25rem 0.7rem;
     color: $text-main;
-    cursor: pointer;
-    transition: 0.2s;
+    font-size: 0.8rem;
 
-    &:hover {
-      background: #1f2937;
-      transform: scale(1.03);
+    &:focus {
+      outline: none;
+      border-color: $blue-light;
+      box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.65);
     }
   }
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.9);
+
+  &.admin {
+    border-color: $red;
+    color: #fecaca;
+  }
+
+  &.programador {
+    border-color: $blue-light;
+    color: #bfdbfe;
+  }
+
+  &.usuario {
+    border-color: #22c55e;
+    color: #bbf7d0;
+  }
+}
+
+// Estados vacíos / carga
+.empty-state {
+  margin-top: 1.1rem;
+  padding: 1.1rem 1rem;
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px dashed rgba(55, 65, 81, 0.95);
+  text-align: center;
+  font-size: 0.9rem;
+  color: $text-muted;
 }

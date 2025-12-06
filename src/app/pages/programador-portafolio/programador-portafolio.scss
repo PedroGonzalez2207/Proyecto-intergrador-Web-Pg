@@ -1,338 +1,361 @@
-$bg: #020617;
-$card-bg: #0f172a;
-$border: #1f2937;
+// PALETA
+$bg-left: #020617;
+$bg-right: #020617;
+$border-soft: #1f2937;
 $text-main: #e5e7eb;
 $text-muted: #9ca3af;
-$accent: #3b82f6;
+$primary: #3b82f6;
+$primary-soft: rgba(59, 130, 246, 0.25);
+$danger: #f87171;
 
-/* FONDO GENERAL */
+// BASE
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background: radial-gradient(circle at top right, #000 0%, #020617 55%, #000 100%);
   color: $text-main;
-  padding: 3rem 1.5rem;
-  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .page-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-/* HEADER SUPERIOR */
-.main-header {
-  margin-bottom: 2.5rem;
-
-  h1 {
-    margin: 0;
-    font-size: 2.4rem;
-    font-weight: 700;
-  }
-
-  .desc {
-    margin: 0.4rem 0 0;
-    font-size: 1rem;
-    color: $text-muted;
-  }
+.page-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 2rem 2.5rem;
 }
 
-/* LAYOUT DOS COLUMNAS */
 .layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 1.5rem;
-  align-items: flex-start;
+  width: 100%;
+  max-width: 1300px;
+  display: flex;
+  gap: 2rem;
 
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
+  @media (max-width: 980px) {
+    flex-direction: column;
   }
 }
 
-/* PERFIL (IZQUIERDA) */
-.profile-card {
-  background: $card-bg;
-  padding: 1.5rem;
-  border-radius: 20px;
-  border: 1px solid $border;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+// HEADER
+.main-header {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.header-content {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  display: flex;
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+// FOOTER
+.main-footer {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.footer-content {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
   text-align: center;
+  font-size: 0.8rem;
+  color: #fff;
+}
 
-  .avatar {
-    margin-bottom: 0.8rem;
-    display: flex;
-    justify-content: center;
+// PANEL PERFIL
+.profile-card {
+  flex: 0 0 320px;
+  background: rgba(0, 0, 0, 0.78);
+  border: 1px solid rgba(15, 23, 42, 0.9);
+  border-radius: 1.4rem;
+  padding: 1.8rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
 
-    img {
-      width: 80px;
-      height: 80px;
-      border-radius: 999px;
-      object-fit: cover;
-      border: 2px solid $accent;
-    }
+  /* 🔥 Necesario para poder pegar el botón al fondo */
+  display: flex;
+  flex-direction: column;
+}
 
-    .initials {
-      width: 80px;
-      height: 80px;
-      border-radius: 999px;
-      background: #111827;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.6rem;
-      font-weight: 700;
-      border: 2px solid $accent;
-    }
+.avatar {
+  width: 95px;
+  height: 95px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  h2 {
-    margin: 0;
-    font-size: 1.3rem;
+  .initials {
+    font-size: 2rem;
+    font-weight: 700;
+    color: $primary;
+  }
+}
+
+.email {
+  text-align: center;
+  font-size: 0.9rem;
+  color: $text-muted;
+  margin-bottom: 0.4rem;
+}
+
+.rol {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.user-details {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+
+  strong {
+    color: $primary;
+  }
+}
+
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+
+  a {
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid $border-soft;
+    background: #020617;
+    font-size: 0.8rem;
+    color: $text-main;
+    text-decoration: none;
+    transition: 0.18s;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+    }
+  }
+}
+
+.notifications-panel {
+  margin-bottom: 1.4rem;
+
+  h3 {
+    margin: 0 0 0.4rem;
   }
 
-  .email {
-    margin: 0.2rem 0;
+  .notifications-empty {
     font-size: 0.85rem;
     color: $text-muted;
   }
+}
 
-  .rol {
-    margin-top: 0.4rem;
-    font-size: 0.9rem;
-    font-weight: 500;
+/* 🔥 Solo botón: centrado y pegado al fondo */
+.logout-btn {
+  background: #020617;
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  color: #fecaca;
+  padding: 0.45rem 1.8rem;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  transition: background-color 0.18s ease, border-color 0.18s ease,
+    box-shadow 0.18s ease, transform 0.1s ease;
+
+  /* 💡 centro horizontal + lo empuja al final de la tarjeta */
+  margin-top: auto;
+  align-self: center;
+
+  &:hover {
+    border-color: red;
+    box-shadow: 0 8px 20px rgba(248, 113, 113, 0.35);
+    transform: translateY(-1px);
   }
 
-  .hint {
-    margin-top: 0.6rem;
-    font-size: 0.8rem;
-    color: $text-muted;
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
   }
 }
 
-/* TARJETA DE PROYECTOS (DERECHA) */
+// PANEL DERECHO (PROYECTOS)
 .card {
-  background: $card-bg;
-  padding: 1.8rem;
-  border-radius: 20px;
-  border: 1px solid $border;
-  box-shadow: 0 0 25px rgba(0,0,0,0.25);
+  flex: 1;
+  background: rgba(0, 0, 0, 0.78);
+  border: 1px solid rgba(15, 23, 42, 0.9);
+  border-radius: 1.4rem;
+  padding: 2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
 }
 
-/* Cabecera dentro de la tarjeta derecha */
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-
-  @media (max-width: 700px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  gap: 1rem;
 }
 
 .section-title {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
 }
 
 .section-subtitle {
-  margin: 0.2rem 0 0;
   font-size: 0.9rem;
   color: $text-muted;
 }
 
-/* Botones de la tarjeta derecha */
-.card-actions {
+.card-actions button {
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: #020617;
+  border: 1px solid $border-soft;
+  color: $text-main;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+  }
+}
+
+.separator {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 1.5rem 0;
+}
+
+.tabs {
   display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  gap: 0.5rem;
 
-  button {
-    padding: 0.45rem 1.1rem;
-    border-radius: 12px;
-    border: 1px solid $border;
-    background: #111827;
-    color: $text-main;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: 0.2s;
+  .tab-btn {
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    background: #020617;
+    border: 1px solid transparent;
+    color: $text-muted;
 
-    &:hover {
-      transform: scale(1.03);
+    &.active {
+      border-color: $primary;
+      color: $primary;
+      background: $primary-soft;
     }
   }
-
-  button:nth-child(2) {
-    background: $accent;
-    border-color: $accent;
-    color: white;
-  }
-
-  .logout {
-    background: transparent;
-    border-color: #f97373;
-    color: #f97373;
-  }
 }
 
-.empty {
-  font-size: 0.95rem;
-  color: $text-muted;
-}
-
-/* LISTA DE PROYECTOS */
 .list {
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
 .proyecto {
-  background: #0a0f1f;
-  border-radius: 16px;
-  border: 1px solid $border;
-  padding: 1rem;
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
-}
-
-.info h3 {
-  margin: 0;
-  font-size: 1.1rem;
+  background: #020617;
+  border-radius: 1rem;
+  border: 1px solid $border-soft;
+  padding: 1rem;
 }
 
 .badges {
-  margin: 0.3rem 0;
   display: flex;
   gap: 0.4rem;
 
   .badge {
     padding: 0.2rem 0.6rem;
     border-radius: 999px;
-    border: 1px solid $border;
-    font-size: 0.75rem;
-  }
+    border: 1px solid $border-soft;
+    font-size: 0.8rem;
 
-  .Academico {
-    background: rgba(59,130,246,0.2);
-  }
-
-  .Laboral {
-    background: rgba(16,185,129,0.2);
-  }
-
-  .participacion {
-    background: rgba(148,163,184,0.2);
-  }
-}
-
-.descripcion {
-  margin: 0.5rem 0;
-}
-
-.tecnologias {
-  margin: 0;
-  font-size: 0.9rem;
-  color: $text-muted;
-
-  strong {
-    color: $text-main;
+    &.categoria {
+      background: $primary-soft;
+      color: $primary;
+    }
   }
 }
 
 .links a {
-  font-size: 0.85rem;
-  color: #60a5fa;
-  margin-right: 0.8rem;
   text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
+  color: $primary;
+  font-size: 0.85rem;
 }
 
 .delete-btn {
-  align-self: flex-start;
-  background: transparent;
-  border: none;
-  color: #f97373;
-  font-size: 0.85rem;
-  cursor: pointer;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  background: rgba(127, 29, 29, 0.6);
+  color: #fecaca;
 
   &:hover {
-    text-decoration: underline;
+    background: rgba(248, 113, 113, 0.9);
+    color: #111;
   }
 }
 
-/* MODAL (igual que ya tenías) */
+// MODAL
 .modal-bg {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(3px);
-  z-index: 10;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 50;
 }
 
 .modal {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 95%;
-  max-width: 550px;
   transform: translate(-50%, -50%);
-  background: $card-bg;
-  padding: 2rem;
-  border-radius: 18px;
-  border: 1px solid $border;
-  z-index: 11;
+  width: min(520px, 92vw);
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 1.4rem;
+  padding: 1.8rem;
+  border: 1px solid rgba(15, 23, 42, 0.9);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+  z-index: 60;
+}
 
-  h2 {
-    margin: 0 0 1rem;
-  }
+.modal-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
 
-  label {
-    display: block;
-    margin-bottom: 1rem;
+.cancel,
+.save {
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
 
-    input,
-    select,
-    textarea {
-      width: 100%;
-      margin-top: 0.3rem;
-      background: #111827;
-      border: 1px solid $border;
-      color: $text-main;
-      border-radius: 10px;
-      padding: 0.55rem 0.7rem;
+.cancel {
+  background: transparent;
+  border: 1px solid $border-soft;
+}
 
-      &:focus {
-        border-color: $accent;
-      }
-    }
-  }
-
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-
-    .cancel {
-      background: transparent;
-      border: 1px solid $border;
-      color: $text-muted;
-      padding: 0.5rem 1rem;
-      border-radius: 10px;
-    }
-
-    .save {
-      background: $accent;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 10px;
-    }
-  }
+.save {
+  background: $primary;
+  color: #111;
 }

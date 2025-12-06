@@ -1,128 +1,207 @@
-<div class="page-container">
-  
-  <header class="main-header">
-    <h1>Panel de Administrador</h1>
-    <p class="desc">
-      Gestiona usuarios, roles y perfiles de programadores.
-    </p>
-  </header>
+<header class="main-header">
+  <div class="header-content">
+    <span class="brand">Panel de Administración</span>
+  </div>
+</header>
 
+<main class="page-main">
   <div class="layout">
-    
+    <section class="main-card card-panel">
+      <div class="card-header-admin">
+        <div>
+          <h1>Gestión de usuarios</h1>
+          <p class="subtitle">
+            Crea programadores, asigna roles y edita el perfil de los
+            desarrolladores.
+          </p>
+        </div>
+
+        <div class="admin-buttons">
+          <button class="btn-blue" routerLink="/admin/asesorias">
+            Gestión de asesorías
+          </button>
+        </div>
+      </div>
+
+      <div class="separator"></div>
+      <section class="create-programmer">
+        <h2>Crear cuenta de programador</h2>
+        <p class="subtitle">
+          Registra un nuevo programador para que pueda ser asignado en
+          asesorías.
+        </p>
+
+        <div class="form-grid">
+          <label>
+            Nombre
+            <input type="text" [(ngModel)]="nuevoNombre" />
+          </label>
+
+          <label>
+            Correo electrónico
+            <input type="email" [(ngModel)]="nuevoEmail" />
+          </label>
+        </div>
+
+        <div class="editor-actions">
+          <button type="button" class="btn-lightblue" (click)="crearProgramador()">
+            Crear programador
+          </button>
+        </div>
+      </section>
+
+      <div class="separator"></div>
+
+      <ng-container *ngIf="users$ | async as users; else loadingUsers">
+        <div class="table-container" *ngIf="users.length > 0; else emptyUsers">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let u of users">
+                <td>{{ u.displayName || 'Sin nombre' }}</td>
+                <td>{{ u.email }}</td>
+                <td>
+                  <span class="tag" [ngClass]="u.role.toLowerCase()">
+                    {{ u.role }}
+                  </span>
+                </td>
+                <td class="actions">
+                  <div class="role-select">
+                    <label>
+                      <select [ngModel]="u.role" (ngModelChange)="cambiarRol(u, $event)">
+                        <option [ngValue]="'Admin'">Admin</option>
+                        <option [ngValue]="'Programador'">Programador</option>
+                        <option [ngValue]="'Usuario'">Usuario</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <button type="button" class="btn-small btn-outline" *ngIf="u.role === 'Programador'" (click)="editarProgramador(u)">
+                    Editar programador
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ng-template #emptyUsers>
+          <div class="empty-state">
+            <p>No hay usuarios registrados todavía.</p>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <ng-template #loadingUsers>
+        <div class="empty-state">
+          <p>Cargando usuarios…</p>
+        </div>
+      </ng-template>
+
+      <div class="separator" *ngIf="selectedUser"></div>
+
+      <section class="editor-section" *ngIf="selectedUser as su">
+        <h2>Perfil de {{ su.displayName || su.email }}</h2>
+        <p class="subtitle">
+          Completa o actualiza la información visible en el portafolio
+          del programador.
+        </p>
+
+        <div class="form-grid">
+          <label>
+            Especialidad
+            <input type="text" [(ngModel)]="especialidad" />
+          </label>
+
+          <label>
+            Foto de perfil (URL)
+            <input type="text" [(ngModel)]="fotoPerfil" />
+          </label>
+
+          <label class="full">
+            Descripción
+            <textarea
+              rows="3"
+              [(ngModel)]="descripcion"
+              placeholder="Breve resumen del perfil del programador"
+            ></textarea>
+          </label>
+
+          <label>
+            GitHub
+            <input type="text" [(ngModel)]="github" />
+          </label>
+
+          <label>
+            LinkedIn
+            <input type="text" [(ngModel)]="linkedin" />
+          </label>
+
+          <label>
+            Portafolio
+            <input type="text" [(ngModel)]="portfolio" />
+          </label>
+
+          <label>
+            Twitter
+            <input type="text" [(ngModel)]="twitter" />
+          </label>
+        </div>
+
+        <div class="editor-actions">
+          <button
+            type="button"
+            class="btn-lightblue"
+            (click)="guardarPerfilProgramador()"
+          >
+            Guardar cambios
+          </button>
+
+          <button type="button" class="btn-blue" (click)="cancelarEdicion()">
+            Cancelar
+          </button>
+        </div>
+      </section>
+    </section>
+
     <aside class="profile-card">
       <ng-container *ngIf="auth.user$ | async as admin">
         <div class="avatar">
-          <img *ngIf="admin.photoURL"
-               [src]="admin.photoURL"
-               alt="Foto de administrador">
+          <img
+            *ngIf="admin.photoURL"
+            [src]="admin.photoURL"
+            alt="Foto de administrador"
+          />
           <div class="initials" *ngIf="!admin.photoURL">
-            {{ ((admin.displayName || admin.email || '?') + '') | slice:0:1 | uppercase }}
+            {{ ((admin.displayName || admin.email || '?') + '') | slice: 0:1 |
+            uppercase }}
           </div>
         </div>
 
         <h2>{{ admin.displayName || 'Administrador' }}</h2>
         <p class="email">{{ admin.email }}</p>
-        <p class="rol">Rol: Administrador</p>
-      </ng-container>
-    </aside>
+        <p class="role">Administrador</p>
 
-    <section class="card">
-
-      <div class="card-header">
-        <div>
-          <h2>Gestión de Usuarios</h2>
-          <p class="section-subtitle">
-            Asigna roles y edita el perfil de los programadores.
-          </p>
-        </div>
-
-        <div class="card-actions" *ngIf="auth.user$ | async">
-          <button routerLink="/admin/asesorias">
-            Gestión de asesorías
-          </button>
-          <button class="logout" (click)="logout()">
+        <div class="profile-actions">
+          <button class="btn-red" (click)="logout()">
             Cerrar sesión
           </button>
         </div>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let u of (users$ | async)">
-            <td>{{ u.displayName || 'Sin nombre' }}</td>
-            <td>{{ u.email }}</td>
-            <td>{{ u.role }}</td>
-
-            <td class="actions">
-              <button (click)="cambiarRol(u, 'Admin')">Admin</button>
-              <button (click)="cambiarRol(u, 'Programador')">Programador</button>
-              <button (click)="cambiarRol(u, 'Usuario')">Usuario</button>
-
-              <button
-                *ngIf="u.role === 'Programador'"
-                (click)="editarProgramador(u)">
-                Editar perfil
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="editor" *ngIf="selectedUser as su">
-        <h2>Perfil de {{ su.displayName || su.email }}</h2>
-
-        <div class="form-grid">
-          <label>
-            Especialidad
-            <input type="text" [(ngModel)]="especialidad">
-          </label>
-
-          <label>
-            Foto de perfil (URL)
-            <input type="text" [(ngModel)]="fotoPerfil">
-          </label>
-
-          <label class="full">
-            Descripción
-            <textarea rows="3" [(ngModel)]="descripcion"></textarea>
-          </label>
-
-          <label>
-            GitHub
-            <input type="text" [(ngModel)]="github">
-          </label>
-
-          <label>
-            LinkedIn
-            <input type="text" [(ngModel)]="linkedin">
-          </label>
-
-          <label>
-            Portafolio
-            <input type="text" [(ngModel)]="portfolio">
-          </label>
-
-          <label>
-            Twitter
-            <input type="text" [(ngModel)]="twitter">
-          </label>
-        </div>
-        
-        <div class="editor-actions">
-          <button (click)="guardarPerfilProgramador()">Guardar</button>
-          <button (click)="cancelarEdicion()">Cancelar</button>
-        </div>
-      </div>
-
-    </section>
+      </ng-container>
+    </aside>
   </div>
-</div>
+</main>
+
+<footer class="main-footer">
+  <div class="footer-content">
+    <span>© 2025 Code Stage - UPS</span>
+  </div>
+</footer>

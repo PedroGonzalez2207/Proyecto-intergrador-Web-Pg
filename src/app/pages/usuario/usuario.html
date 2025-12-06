@@ -1,111 +1,135 @@
-<div class="page-wrapper">
-  <header class="main-header">
-    <h1>Explora portafolios y agenda asesorías</h1>
-    <p class="desc">
-      Elige un programador, revisa su portafolio y solicita una asesoría indicando
-      fecha, hora y el motivo de tu consulta.
-    </p>
-  </header>
+<header class="main-header">
+  <div class="header-content">
+    <span class="brand">Explora portafolios y agenda asesorías</span>
+  </div>
+</header>
 
+<main class="page-main">
   <div class="layout-3">
-    <!-- COLUMNA 1: PERFIL -->
     <aside class="perfil-card">
-      <ng-container *ngIf="isLoggedIn && usuario as u; else sinUsuario">
+      <ng-container *ngIf="auth.user$ | async as u; else sinUsuario">
         <div class="perfil-info">
-          <img
-            src="https://i.imgur.com/tXWf9Qj.png"
-            class="foto"
-            alt="Usuario"
-          />
-          <h3>{{ u.nombre }}</h3>
+          <div class="avatar">
+            <div class="initials">
+              {{ ((u.displayName || u.email || '?') + '') | slice:0:1 | uppercase }}
+            </div>
+          </div>
+
+          <h3>{{ u.displayName || 'Usuario' }}</h3>
           <p class="rol">Usuario externo</p>
 
           <div class="datos">
-            <p><strong>Email:</strong> {{ u.email }}</p>
-            <p><strong>Miembro desde:</strong> {{ u.miembroDesde }}</p>
+            <p>{{ u.email }}</p>
+          </div>
+
+          <div class="logout-wrapper">
+            <button class="btn-logout" (click)="logout()">
+              Cerrar sesión
+            </button>
           </div>
         </div>
       </ng-container>
 
       <ng-template #sinUsuario>
         <div class="perfil-info empty">
-          <p class="rol">Inicia sesión para ver tu perfil.</p>
+          <p class="rol">Inicia sesión para ver tu perfil y solicitar asesorías.</p>
         </div>
       </ng-template>
     </aside>
 
-    <!-- COLUMNA 2: PORTAFOLIOS -->
-    <section class="card">
-      <h2 class="section-title">Portafolios disponibles</h2>
-      <p class="section-subtitle">
-        Selecciona el portafolio del programador con el que deseas agendar una
-        asesoría.
-      </p>
-
-      <p class="empty" *ngIf="!portafolios.length">
-        Aún no hay portafolios registrados.
-      </p>
-
-      <div class="list" *ngIf="portafolios.length">
-        <article class="portafolio" *ngFor="let p of portafolios">
-          <div class="info">
-            <h3>{{ p.titulo }}</h3>
-            <p class="programador">Por {{ p.programadorNombre }}</p>
-
-            <p class="meta">
-              <span class="badge" *ngIf="p.especialidad">
-                {{ p.especialidad }}
-              </span>
-              <span class="badge soft" *ngIf="p.experiencia">
-                {{ p.experiencia }}
-              </span>
-            </p>
-
-            <p class="resumen" *ngIf="p.resumen">{{ p.resumen }}</p>
-            <p class="tecnologias" *ngIf="p.tecnologias">
-              <strong>Tecnologías:</strong> {{ p.tecnologias }}
-            </p>
-          </div>
-
-          <div class="acciones">
-            <button type="button" (click)="verDetalle(p)">Ver detalles</button>
-            <button type="button" (click)="seleccionarPortafolio(p)">
-              Agendar asesoría
-            </button>
-          </div>
-        </article>
+    <section class="main-card">
+      <div class="card-header-usuario">
+        <div>
+          <h1>Programadores disponibles</h1>
+          <p class="subtitle">
+            Elige un programador, revisa sus portafolios y selecciona uno para agendar una asesoría.
+          </p>
+        </div>
       </div>
+
+      <div class="separator"></div>
+
+      <ng-container *ngIf="programadores.length; else sinProgramadores">
+        <div class="programadores-list">
+          <article class="programador-card" *ngFor="let prog of programadores">
+            <header class="prog-header">
+              <div>
+                <h2>{{ prog.nombre }}</h2>
+                <p class="prog-meta" *ngIf="prog.especialidad || prog.experiencia">
+                  <span *ngIf="prog.especialidad"><strong>Especialidad:</strong> {{ prog.especialidad }}</span>
+                  <span *ngIf="prog.experiencia"><strong>Experiencia:</strong> {{ prog.experiencia }}</span>
+                </p>
+              </div>
+            </header>
+
+            <div class="portafolios-group" *ngIf="prog.portafolios && prog.portafolios.length; else sinPortafoliosProg">
+              <h3 class="portafolios-title">Portafolios</h3>
+
+              <article class="portafolio" *ngFor="let p of prog.portafolios">
+                <div class="info">
+                  <h3>{{ p.titulo }}</h3>
+
+                  <p class="meta">
+                    <span class="badge" *ngIf="p.especialidad">
+                      {{ p.especialidad }}
+                    </span>
+                    <span class="badge soft" *ngIf="p.experiencia">
+                      {{ p.experiencia }}
+                    </span>
+                  </p>
+
+                  <p class="resumen" *ngIf="p.resumen">{{ p.resumen }}</p>
+
+                  <p class="tecnologias" *ngIf="p.tecnologias">
+                    <strong>Tecnologías:</strong> {{ p.tecnologias }}
+                  </p>
+                </div>
+
+                <div class="acciones">
+                  <button type="button" class="btn-small" (click)="verDetalle(p)">
+                    Ver detalles
+                  </button>
+                  <button type="button" class="btn-small primary" (click)="seleccionarPortafolio(p)">
+                    Agendar asesoría
+                  </button>
+                </div>
+              </article>
+            </div>
+
+            <ng-template #sinPortafoliosProg>
+              <p class="empty small">Este programador aún no tiene portafolios registrados.</p>
+            </ng-template>
+          </article>
+        </div>
+      </ng-container>
+
+      <ng-template #sinProgramadores>
+        <div class="empty-state">
+          Todavía no hay programadores con portafolios disponibles.
+        </div>
+      </ng-template>
 
       <div class="detalle-portafolio" *ngIf="detalleSeleccionado">
         <h3>Detalle del portafolio</h3>
-        <p>
-          <strong>Título:</strong> {{ detalleSeleccionado.titulo }}
-        </p>
-        <p>
-          <strong>Programador:</strong>
-          {{ detalleSeleccionado.programadorNombre }}
-        </p>
+        <p><strong>Título:</strong> {{ detalleSeleccionado.titulo }}</p>
+        <p><strong>Programador:</strong> {{ detalleSeleccionado.programadorNombre }}</p>
         <p *ngIf="detalleSeleccionado.especialidad">
-          <strong>Especialidad:</strong>
-          {{ detalleSeleccionado.especialidad }}
+          <strong>Especialidad:</strong> {{ detalleSeleccionado.especialidad }}
         </p>
         <p *ngIf="detalleSeleccionado.experiencia">
-          <strong>Experiencia:</strong>
-          {{ detalleSeleccionado.experiencia }}
+          <strong>Experiencia:</strong> {{ detalleSeleccionado.experiencia }}
         </p>
         <p *ngIf="detalleSeleccionado.tecnologias">
-          <strong>Tecnologías:</strong>
-          {{ detalleSeleccionado.tecnologias }}
+          <strong>Tecnologías:</strong> {{ detalleSeleccionado.tecnologias }}
         </p>
       </div>
     </section>
 
-    <!-- COLUMNA 3: AGENDAR -->
     <aside class="side-card">
       <h2 class="section-title">Agendar asesoría</h2>
 
       <p class="section-subtitle" *ngIf="!seleccionado">
-        Primero selecciona un portafolio de la lista para agendar una asesoría.
+        Selecciona primero un portafolio de la columna central para solicitar una asesoría.
       </p>
 
       <form *ngIf="seleccionado" (ngSubmit)="enviarSolicitud()" class="form">
@@ -114,6 +138,15 @@
           <input
             type="text"
             [value]="seleccionado.programadorNombre"
+            disabled
+          />
+        </div>
+
+        <div class="field">
+          <label>Portafolio</label>
+          <input
+            type="text"
+            [value]="seleccionado.titulo"
             disabled
           />
         </div>
@@ -138,8 +171,14 @@
           ></textarea>
         </div>
 
-        <button type="submit" class="primary">Enviar solicitud</button>
+        <button type="submit" class="btn-primary">Enviar solicitud</button>
       </form>
     </aside>
   </div>
-</div>
+</main>
+
+<footer class="main-footer">
+  <div class="footer-content">
+    <span>© 2025 Code Stage - UPS</span>
+  </div>
+</footer>

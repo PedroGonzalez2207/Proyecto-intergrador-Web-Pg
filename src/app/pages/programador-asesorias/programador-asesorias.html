@@ -1,73 +1,95 @@
 <div class="page-wrapper">
 
-  <!-- HEADER PRINCIPAL -->
   <header class="main-header">
-    <h1>Solicitudes de Asesoría</h1>
+    <div class="header-content">
+      <span class="brand">Solicitudes de Asesoría</span>
+    </div>
+
     <p class="desc">
       Administra y responde las solicitudes recibidas por parte de los usuarios.
     </p>
 
-    <button class="back-btn" routerLink="/programador/portafolio">← Volver al panel</button>
+    <div class="header-actions">
+      <button class="back-btn" routerLink="/programador/portafolio">
+        ← Volver al panel
+      </button>
+    </div>
   </header>
 
-  <!-- TARJETA PRINCIPAL -->
-  <div class="card">
+  <main class="page-main">
+    <section class="card">
+      <div class="card-header">
+        <h2 class="section-title">Asesorías recibidas</h2>
+        <p class="section-subtitle">
+          Cambia el estado y envía un mensaje de confirmación o justificación al usuario.
+        </p>
+      </div>
 
-    <h2 class="section-title">Asesorías Recibidas</h2>
+      <div class="separator"></div>
 
-    <p class="empty" *ngIf="!asesorias.length">
-      No tienes solicitudes en este momento.
-    </p>
+      <p class="empty" *ngIf="!asesorias.length">
+        No tienes solicitudes en este momento.
+      </p>
 
-    <div class="list" *ngIf="asesorias.length">
-      <article class="item" *ngFor="let a of asesorias">
-        
-        <div class="info">
-          <h3>{{ a.usuarioNombre }}</h3>
+      <div class="list" *ngIf="asesorias.length">
+        <article class="item" *ngFor="let a of asesorias">
+          <div class="info">
+            <header class="item-header">
+              <div>
+                <h3>{{ a.usuarioNombre || 'Usuario sin nombre' }}</h3>
+                <p class="meta">{{ a.fecha }} · {{ a.hora }}</p>
+              </div>
 
-          <p class="meta">
-            {{ a.fecha }} · {{ a.hora }}
-          </p>
+              <span class="estado" [ngClass]="a.estado">
+                {{ a.estado | titlecase }}
+              </span>
+            </header>
 
-          <p class="comentario" *ngIf="a.comentario">
-            "{{ a.comentario }}"
-          </p>
+            <p class="comentario" *ngIf="a.comentario">"{{ a.comentario }}"</p>
 
-          <span class="estado" [ngClass]="a.estado">
-            {{ a.estado | titlecase }}
-          </span>
+            <p class="respuesta" *ngIf="a.mensajeRespuesta">
+              <strong>Último mensaje:</strong> {{ a.mensajeRespuesta }}
+            </p>
+          </div>
 
-          <p class="respuesta" *ngIf="a.mensajeRespuesta">
-            <strong>Respuesta:</strong> {{ a.mensajeRespuesta }}
-          </p>
-        </div>
+          <div class="acciones">
+            <button class="btn-small approve" (click)="abrirDialogo(a,'aprobada')">Aprobar</button>
+            <button class="btn-small reject" (click)="abrirDialogo(a,'rechazada')">Rechazar</button>
+            <button class="btn-small pending" (click)="abrirDialogo(a,'pendiente')">Pendiente</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
 
-        <div class="acciones">
-          <button class="approve" (click)="cambiarEstado(a, 'aprobada')">Aprobar</button>
-          <button class="reject" (click)="cambiarEstado(a, 'rechazada')">Rechazar</button>
-          <button class="pending" (click)="cambiarEstado(a, 'pendiente')">Pendiente</button>
-        </div>
-
-      </article>
+  <footer class="main-footer">
+    <div class="footer-content">
+      © 2025 Code Stage - UPS
     </div>
-  </div>
+  </footer>
 
   <div class="modal-bg" *ngIf="modalOpen" (click)="cerrarModal()"></div>
 
   <div class="modal" *ngIf="modalOpen">
-    <h2>Responder Solicitud</h2>
+    <h2>
+      {{ estadoDestino === 'aprobada' ? 'Aprobar asesoría'
+      : estadoDestino === 'rechazada' ? 'Rechazar asesoría'
+      : 'Mantener en pendiente' }}
+    </h2>
 
-    <p><strong>De:</strong> {{ asesoriaSeleccionada?.usuarioNombre }}</p>
-    <p><strong>Fecha:</strong> {{ asesoriaSeleccionada?.fecha }} - {{ asesoriaSeleccionada?.hora }}</p>
+    <p class="modal-detail"><strong>De:</strong> {{ asesoriaSeleccionada?.usuarioNombre }}</p>
+    <p class="modal-detail"><strong>Fecha:</strong> {{ asesoriaSeleccionada?.fecha }} · {{ asesoriaSeleccionada?.hora }}</p>
 
-    <label>Mensaje de respuesta
-      <textarea rows="3"></textarea>
+    <label class="modal-label">
+      Mensaje para el usuario
+      <textarea rows="4" [(ngModel)]="mensajeRespuesta" name="mensajeRespuesta"></textarea>
     </label>
 
     <div class="modal-actions">
-      <button class="cancel" (click)="cerrarModal()">Cancelar</button>
-      <button class="save">Guardar</button>
+      <button class="btn-cancel" type="button" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-confirm" type="button" (click)="guardarRespuesta()">Enviar mensaje y actualizar</button>
     </div>
   </div>
 
 </div>
+  

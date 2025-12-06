@@ -1,15 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-type Estado = 'pendiente' | 'aprobada' | 'rechazada';
+import { Auth } from '../../services/auth';
+import { User } from '../../services/user';
 
-interface UsuarioPerfil {
-  id: number | string;
-  nombre: string;
-  email: string;
-  miembroDesde?: string;
-}
+type Estado = 'pendiente' | 'aprobada' | 'rechazada';
 
 interface PortafolioVisible {
   id: number | string;
@@ -20,6 +16,14 @@ interface PortafolioVisible {
   titulo: string;
   resumen?: string;
   tecnologias?: string;
+}
+
+interface ProgramadorItem {
+  id: number | string;
+  nombre: string;
+  especialidad?: string;
+  experiencia?: string;
+  portafolios: PortafolioVisible[];
 }
 
 interface SolicitudAsesoria {
@@ -40,10 +44,15 @@ interface SolicitudAsesoria {
   styleUrls: ['./usuario.scss'],
 })
 export class Usuario implements OnInit {
-  isLoggedIn = false;
-  usuario: UsuarioPerfil | null = null;
 
-  portafolios: PortafolioVisible[] = [];
+  // Servicios
+  public auth = inject(Auth);
+  private userService = inject(User);
+
+  isLoggedIn = false;
+
+  programadores: ProgramadorItem[] = [];
+
   detalleSeleccionado: PortafolioVisible | null = null;
   seleccionado: PortafolioVisible | null = null;
 
@@ -53,16 +62,25 @@ export class Usuario implements OnInit {
 
   solicitudes: SolicitudAsesoria[] = [];
 
-  constructor() {}
-
   ngOnInit(): void {
-    this.isLoggedIn = false;
-    this.usuario = null;
-    this.portafolios = [];
+    this.auth.user$.subscribe((u: any) => {
+      console.log('USER EN USUARIO ===>', u);
+      if (u) {
+        this.isLoggedIn = true;
+
+        this.cargarProgramadoresConPortafolios();
+      } else {
+        this.isLoggedIn = false;
+        this.programadores = [];
+        this.detalleSeleccionado = null;
+        this.seleccionado = null;
+      }
+    });
   }
 
-  cargarPortafoliosDisponibles(): void {
-    if (!this.isLoggedIn || !this.usuario) return;
+  cargarProgramadoresConPortafolios(): void {
+    if (!this.isLoggedIn) return;
+
   }
 
   verDetalle(p: PortafolioVisible): void {
@@ -72,6 +90,7 @@ export class Usuario implements OnInit {
 
   seleccionarPortafolio(p: PortafolioVisible): void {
     if (!this.isLoggedIn) return;
+
     this.seleccionado = p;
     this.fecha = '';
     this.hora = '';
@@ -79,7 +98,7 @@ export class Usuario implements OnInit {
   }
 
   enviarSolicitud(): void {
-    if (!this.isLoggedIn || !this.usuario) return;
+    if (!this.isLoggedIn) return;
     if (!this.seleccionado) return;
     if (!this.fecha || !this.hora) return;
 
@@ -94,8 +113,15 @@ export class Usuario implements OnInit {
     };
 
     this.solicitudes.push(nueva);
+
     this.fecha = '';
     this.hora = '';
     this.comentario = '';
+
   }
+
+  logout() {
+    this.auth.logout();
+  }
+
 }

@@ -1,91 +1,117 @@
 <div class="page-wrapper">
+
   <header class="main-header">
-    <h1>Panel del Programador</h1>
-    <p class="desc">
-      Gestiona tu perfil, tus proyectos y las asesorías que recibes.
-    </p>
+    <div class="header-content">
+      <span class="brand">Panel del Programador</span>
+    </div>
   </header>
 
-  <div class="layout">
-    <aside class="profile-card">
-      <ng-container *ngIf="(auth.user$ | async) as u">
-        <div class="avatar">
-          <img *ngIf="u.photoURL"
-              [src]="u.photoURL"
-              alt="Foto de perfil">
-          <div class="initials" *ngIf="!u.photoURL">
-            {{ ((u.displayName || u.email || '?') + '') | slice:0:1 | uppercase }}
-          </div>
-        </div>
+  <main class="page-main">
+    <div class="layout">
 
-        <h2>{{ u.displayName || 'Programador' }}</h2>
-        <p class="email">{{ u.email }}</p>
+      <aside class="profile-card">
+        <ng-container *ngIf="(auth.user$ | async) as u">
 
-        <p class="rol">
-          Rol: Programador
-        </p>
-
-        <p class="hint">
-          Aquí luego puedes mostrar tu especialidad, bio y redes
-          configuradas desde el Admin.
-        </p>
-      </ng-container>
-    </aside>
-
-    <section class="card">
-      <div class="card-header">
-        <div>
-          <h2 class="section-title">Tus proyectos</h2>
-          <p class="section-subtitle">
-            Administra los proyectos que se muestran en tu portafolio.
-          </p>
-        </div>
-
-        <div class="card-actions">
-          <button routerLink="/programador/asesorias">Ver asesorías</button>
-          <button (click)="abrirModal()">+ Nuevo proyecto</button>
-          <button class="logout" (click)="logout()">Cerrar sesión</button>
-        </div>
-      </div>
-
-      <p class="empty" *ngIf="!proyectos.length">
-        Aún no registras proyectos en tu portafolio. Empieza creando uno nuevo.
-      </p>
-
-      <div class="list" *ngIf="proyectos.length">
-        <article class="proyecto" *ngFor="let p of proyectos">
-          <div class="info">
-            <h3>{{ p.nombre }}</h3>
-
-            <div class="badges">
-              <span class="badge categoria" [ngClass]="p.categoria">
-                {{ p.categoria === 'Academico' ? 'Académico' : 'Laboral' }}
-              </span>
-              <span class="badge participacion">
-                {{ p.participacion }}
-              </span>
-            </div>
-
-            <p class="descripcion">{{ p.descripcion }}</p>
-
-            <p class="tecnologias" *ngIf="p.tecnologias">
-              <strong>Tecnologías:</strong> {{ p.tecnologias }}
-            </p>
-
-            <div class="links">
-              <a *ngIf="p.repoUrl" [href]="p.repoUrl" target="_blank">Repositorio</a>
-              <a *ngIf="p.demoUrl" [href]="p.demoUrl" target="_blank">Demo</a>
+          <div class="avatar">
+            <img *ngIf="u.fotoPerfil" [src]="u.fotoPerfil" alt="Foto">
+            <img *ngIf="!u.fotoPerfil && u.photoURL" [src]="u.photoURL" alt="Foto">
+            <div class="initials" *ngIf="!u.fotoPerfil && !u.photoURL">
+              {{ ((u.displayName || u.email || '?') + '') | slice:0:1 | uppercase }}
             </div>
           </div>
 
-          <button class="delete-btn" (click)="eliminarProyecto(p.id)">
-            Eliminar
-          </button>
-        </article>
-      </div>
-    </section>
-  </div>
+          <h2>{{ u.displayName || 'Programador' }}</h2>
+          <p class="email">{{ u.email }}</p>
+          <p class="rol">Programador</p>
 
+          <div class="user-details">
+            <p *ngIf="u.especialidad"><strong>Especialidad:</strong> {{ u.especialidad }}</p>
+            <p *ngIf="u.descripcion">{{ u.descripcion }}</p>
+          </div>
+
+          <div class="social-links" *ngIf="u.redes">
+            <a *ngIf="u.redes.github" [href]="u.redes.github" target="_blank">GitHub</a>
+            <a *ngIf="u.redes.linkedin" [href]="u.redes.linkedin" target="_blank">LinkedIn</a>
+            <a *ngIf="u.redes.portfolio" [href]="u.redes.portfolio" target="_blank">Portafolio</a>
+            <a *ngIf="u.redes.twitter" [href]="u.redes.twitter" target="_blank">Twitter</a>
+          </div>
+
+          <section class="notifications-panel">
+            <h3>Notificaciones</h3>
+            <p class="notifications-empty">No tienes notificaciones nuevas.</p>
+          </section>
+
+          <div class="logout-container">
+            <button class="btn-red logout-btn" (click)="logout()">
+              Cerrar sesión
+            </button>
+          </div>
+        </ng-container>
+      </aside>
+
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="section-title">Tus proyectos</h2>
+            <p class="section-subtitle">Administra los proyectos que se muestran en tu portafolio.</p>
+          </div>
+
+          <div class="card-actions">
+            <button routerLink="/programador/asesorias">Ver asesorías</button>
+            <button (click)="abrirModal()">+ Nuevo proyecto</button>
+          </div>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="tabs">
+          <button class="tab-btn" [class.active]="filtroCategoria === 'Todos'" (click)="cambiarFiltro('Todos')">Todos</button>
+          <button class="tab-btn" [class.active]="filtroCategoria === 'Academico'" (click)="cambiarFiltro('Academico')">Académico</button>
+          <button class="tab-btn" [class.active]="filtroCategoria === 'Laboral'" (click)="cambiarFiltro('Laboral')">Laboral</button>
+        </div>
+
+        <p class="empty" *ngIf="!obtenerProyectosFiltrados().length">
+          Aún no registras proyectos en tu portafolio. Empieza creando uno nuevo.
+        </p>
+
+        <div class="list" *ngIf="obtenerProyectosFiltrados().length">
+          <article class="proyecto" *ngFor="let p of obtenerProyectosFiltrados()">
+            <div class="info">
+              <h3>{{ p.nombre }}</h3>
+
+              <div class="badges">
+                <span class="badge categoria" [ngClass]="p.categoria">
+                  {{ p.categoria === 'Academico' ? 'Académico' : 'Laboral' }}
+                </span>
+                <span class="badge participacion">{{ p.participacion }}</span>
+              </div>
+
+              <p class="descripcion">{{ p.descripcion }}</p>
+
+              <p class="tecnologias" *ngIf="p.tecnologias">
+                <strong>Tecnologías:</strong> {{ p.tecnologias }}
+              </p>
+
+              <div class="links">
+                <a *ngIf="p.repoUrl" [href]="p.repoUrl" target="_blank">Repositorio</a>
+                <a *ngIf="p.demoUrl" [href]="p.demoUrl" target="_blank">Demo</a>
+              </div>
+            </div>
+
+            <button class="delete-btn" (click)="eliminarProyecto(p.id)">Eliminar</button>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="footer-content">
+      © 2025 Code Stage - UPS
+    </div>
+  </footer>
+
+  <!-- MODAL -->
   <div class="modal-bg" *ngIf="modalOpen" (click)="cerrarModal()"></div>
 
   <div class="modal" *ngIf="modalOpen">
@@ -94,12 +120,12 @@
     <form (ngSubmit)="agregarProyecto()">
       <label>
         Nombre *
-        <input type="text" [(ngModel)]="nuevo.nombre" name="nombre">
+        <input type="text" name="nombre" [(ngModel)]="nuevo.nombre">
       </label>
 
       <label>
         Categoría *
-        <select [(ngModel)]="nuevo.categoria" name="categoria">
+        <select name="categoria" [(ngModel)]="nuevo.categoria">
           <option value="Academico">Académico</option>
           <option value="Laboral">Laboral</option>
         </select>
@@ -107,7 +133,7 @@
 
       <label>
         Participación *
-        <select [(ngModel)]="nuevo.participacion" name="participacion">
+        <select name="participacion" [(ngModel)]="nuevo.participacion">
           <option value="Frontend">Frontend</option>
           <option value="Backend">Backend</option>
           <option value="BaseDeDatos">Base de Datos</option>
@@ -117,28 +143,29 @@
 
       <label>
         Descripción *
-        <textarea rows="3" [(ngModel)]="nuevo.descripcion" name="descripcion"></textarea>
+        <textarea rows="3" name="descripcion" [(ngModel)]="nuevo.descripcion"></textarea>
       </label>
 
       <label>
         Tecnologías
-        <input type="text" [(ngModel)]="nuevo.tecnologias" name="tecnologias">
+        <input name="tecnologias" [(ngModel)]="nuevo.tecnologias">
       </label>
 
       <label>
         Repositorio
-        <input type="text" [(ngModel)]="nuevo.repoUrl" name="repoUrl">
+        <input name="repoUrl" [(ngModel)]="nuevo.repoUrl">
       </label>
 
       <label>
         Demo
-        <input type="text" [(ngModel)]="nuevo.demoUrl" name="demoUrl">
+        <input name="demoUrl" [(ngModel)]="nuevo.demoUrl">
       </label>
 
       <div class="modal-actions">
-        <button type="button" class="cancel" (click)="cerrarModal()">Cancelar</button>
-        <button type="submit" class="save">Guardar</button>
+        <button class="cancel" type="button" (click)="cerrarModal()">Cancelar</button>
+        <button class="save" type="submit">Guardar</button>
       </div>
     </form>
   </div>
+
 </div>

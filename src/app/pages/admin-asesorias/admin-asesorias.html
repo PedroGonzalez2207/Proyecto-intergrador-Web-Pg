@@ -1,59 +1,39 @@
-<div class="page-container">
+<header class="main-header">
+  <div class="header-content">
+    <span class="brand">Panel de Administración</span>
+  </div>
+</header>
 
-  <!-- HEADER SUPERIOR -->
-  <header class="main-header">
-    <h1>Panel de Administrador</h1>
-    <p class="desc">
-      Configura la disponibilidad de los programadores para las asesorías.
-    </p>
-  </header>
-
+<main class="page-main">
   <div class="layout">
-
-    <!-- PANEL IZQUIERDO: ADMIN (solo muestra info si está logueado) -->
-    <aside class="profile-card">
-      <ng-container *ngIf="auth.user$ | async as admin">
-        <div class="avatar">
-          <img *ngIf="admin.photoURL" [src]="admin.photoURL" alt="Foto de administrador">
-          <div class="initials" *ngIf="!admin.photoURL">
-            {{ ((admin.displayName || admin.email || '?') + '') | slice:0:1 | uppercase }}
-          </div>
-        </div>
-
-        <h2>{{ admin.displayName || 'Administrador' }}</h2>
-        <p class="email">{{ admin.email }}</p>
-        <p class="rol">Rol: Administrador</p>
-      </ng-container>
-    </aside>
-
-    <!-- PANEL DERECHO: GESTIÓN DE ASESORÍAS -->
-    <section class="card">
+    <section class="main-card card">
       <div class="card-header">
         <div>
-          <h2>Gestión de Asesorías</h2>
+          <h1>Gestión de asesorías</h1>
           <p class="section-subtitle">
             Registra los horarios de disponibilidad de cada programador.
           </p>
         </div>
 
         <div class="card-actions" *ngIf="auth.user$ | async">
-          <button routerLink="/admin/usuarios">Usuarios</button>
-          <button class="logout" (click)="logout()">Cerrar sesión</button>
+          <button class="btn-blue" routerLink="/admin/usuarios">
+            Usuarios
+          </button>
         </div>
       </div>
 
-      <!-- Selección de programador -->
+      <div class="separator"></div>
+
       <div class="selector-programador">
         <label>
           Programador
           <select
             [(ngModel)]="selectedProgrammer"
             name="programador"
-            (ngModelChange)="onProgramadorChange()">
-
+            (ngModelChange)="onProgramadorChange()"
+          >
             <option [ngValue]="null">Seleccione un programador</option>
 
-            <!-- Solo programadores -->
             <ng-container *ngFor="let p of (programadores$ | async)">
               <option *ngIf="p.role === 'Programador'" [ngValue]="p">
                 {{ p.displayName || p.email }}
@@ -63,54 +43,117 @@
         </label>
       </div>
 
-      <!-- Si hay programador seleccionado, mostramos horarios -->
-      <ng-container *ngIf="selectedProgrammer as prog">
+      <ng-container *ngIf="selectedProgrammer; else noProgrammer">
+        <div class="slots-actuales">
+          <h2>Horarios registrados</h2>
 
-        <div class="slots" *ngIf="disponibilidad$ | async as slots">
-          <h3>Horarios registrados para {{ prog.displayName || prog.email }}</h3>
+          <div
+            class="slots-list"
+            *ngIf="disponibilidad$ | async as slots; else loadingSlots"
+          >
+            <div class="slot" *ngFor="let s of slots">
+              <div class="slot-info">
+                <p class="slot-date">
+                  {{ s.fecha | date: 'EEEE d/MM/yyyy' }}
+                </p>
+                <p class="slot-time">
+                  {{ s.horaInicio }} — {{ s.horaFin }}
+                </p>
+              </div>
+              <button
+                type="button"
+                class="btn-small"
+                (click)="eliminarDisponibilidad(s)"
+              >
+                Eliminar
+              </button>
+            </div>
 
-          <p *ngIf="!slots.length" class="empty">
-            Este programador aún no tiene horarios de disponibilidad.
-          </p>
+            <div class="empty-state" *ngIf="slots.length === 0">
+              No hay horarios registrados para este programador.
+            </div>
+          </div>
 
-          <ul *ngIf="slots.length">
-            <li *ngFor="let s of slots">
-              <span>{{ s.fecha }} — {{ s.horaInicio }} a {{ s.horaFin }}</span>
-              <button (click)="eliminarSlot(s.id)">Eliminar</button>
-            </li>
-          </ul>
+          <ng-template #loadingSlots>
+            <div class="empty-state">
+              Cargando horarios…
+            </div>
+          </ng-template>
         </div>
 
-        <!-- Formulario para nuevo horario -->
+        <div class="separator"></div>
+
         <div class="nuevo-slot">
-          <h3>Agregar nuevo horario</h3>
+          <h2>Agregar nuevo horario</h2>
 
           <form (ngSubmit)="guardarDisponibilidad()">
             <div class="form-grid">
               <label>
                 Fecha
-                <input type="date" [(ngModel)]="fecha" name="fecha">
+                <input type="date" [(ngModel)]="fecha" name="fecha" />
               </label>
 
               <label>
                 Hora inicio
-                <input type="time" [(ngModel)]="horaInicio" name="horaInicio">
+                <input
+                  type="time"
+                  [(ngModel)]="horaInicio"
+                  name="horaInicio"
+                />
               </label>
 
               <label>
                 Hora fin
-                <input type="time" [(ngModel)]="horaFin" name="horaFin">
+                <input type="time" [(ngModel)]="horaFin" name="horaFin" />
               </label>
             </div>
 
             <div class="form-actions">
-              <button type="submit">Guardar horario</button>
+              <button type="submit" class="btn-lightblue">
+                Guardar horario
+              </button>
             </div>
           </form>
         </div>
-
       </ng-container>
 
+      <ng-template #noProgrammer>
+        <div class="empty-state">
+          Selecciona un programador para gestionar su disponibilidad.
+        </div>
+      </ng-template>
     </section>
+
+    <aside class="profile-card">
+      <ng-container *ngIf="auth.user$ | async as admin">
+        <div class="avatar">
+          <img
+            *ngIf="admin.photoURL"
+            [src]="admin.photoURL"
+            alt="Foto de administrador"
+          />
+          <div class="initials" *ngIf="!admin.photoURL">
+            {{ ((admin.displayName || admin.email || '?') + '') | slice: 0:1 |
+            uppercase }}
+          </div>
+        </div>
+
+        <h2>{{ admin.displayName || 'Administrador' }}</h2>
+        <p class="email">{{ admin.email }}</p>
+        <p class="role">Administrador</p>
+
+        <div class="profile-actions">
+          <button class="btn-red" (click)="logout()">
+            Cerrar sesión
+          </button>
+        </div>
+      </ng-container>
+    </aside>
   </div>
-</div>
+</main>
+
+<footer class="main-footer">
+  <div class="footer-content">
+    <span>© 2025 Code Stage - UPS</span>
+  </div>
+</footer>

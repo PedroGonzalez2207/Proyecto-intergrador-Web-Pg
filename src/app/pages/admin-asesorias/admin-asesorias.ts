@@ -20,69 +20,88 @@ import { Disponibilidad } from '../../models/asesoria';
   styleUrls: ['./admin-asesorias.scss'],
 })
 export class AdminAsesorias implements OnInit {
-
-  auth = inject(Auth);
+  public auth = inject(Auth);
   private userService = inject(User);
-  private asesoriasSrv = inject(AsesoriasService);
+  private asesoriasService = inject(AsesoriasService);
   private router = inject(Router);
 
-  // Todos los usuarios (filtramos programadores en el template)
   programadores$!: Observable<AppUser[]>;
 
-  // Programador seleccionado (objeto completo)
   selectedProgrammer: AppUser | null = null;
 
-  // Disponibilidad del programador seleccionado
-  disponibilidad$: Observable<Disponibilidad[]> = of<Disponibilidad[]>([]);
+  disponibilidad$: Observable<Disponibilidad[]> = of([]);
 
-  // Formulario para nuevo horario
   fecha = '';
   horaInicio = '';
   horaFin = '';
 
   ngOnInit(): void {
-    // Usamos tu getAllUsers existente
     this.programadores$ = this.userService.getAllUsers();
+  }
+
+  async logout() {
+    try {
+      await this.auth.logout();
+      this.router.navigate(['/login']);
+    } catch (err: any) {
+      console.error('Error al cerrar sesión:', err);
+    }
   }
 
   onProgramadorChange() {
     if (this.selectedProgrammer) {
-      this.disponibilidad$ = this.asesoriasSrv.getDisponibilidadByProgramador(
-        this.selectedProgrammer.uid
-      );
+      this.disponibilidad$ =
+        this.asesoriasService.getDisponibilidadByProgramador(
+          this.selectedProgrammer.uid
+        );
     } else {
-      this.disponibilidad$ = of<Disponibilidad[]>([]);
+      this.disponibilidad$ = of([]);
     }
   }
 
-  async guardarDisponibilidad() {
-    if (!this.selectedProgrammer) return;
-    if (!this.fecha || !this.horaInicio || !this.horaFin) return;
-
-    const prog = this.selectedProgrammer;
+  guardarDisponibilidad() {
+    if (
+      !this.selectedProgrammer ||
+      !this.fecha ||
+      !this.horaInicio ||
+      !this.horaFin
+    ) {
+      return;
+    }
 
     const slot: Disponibilidad = {
-      programadorId: prog.uid,
-      programadorNombre: prog.displayName || prog.email || 'Programador',
+      programadorId: this.selectedProgrammer.uid,
+      programadorNombre:
+        this.selectedProgrammer.displayName ||
+        this.selectedProgrammer.email,
       fecha: this.fecha,
       horaInicio: this.horaInicio,
       horaFin: this.horaFin,
     };
 
-    await this.asesoriasSrv.addDisponibilidad(slot);
-
-    // Limpia el formulario
-    this.horaInicio = '';
-    this.horaFin = '';
+    this.asesoriasService
+      .addDisponibilidad(slot)
+      .then(() => {
+        this.fecha = '';
+        this.horaInicio = '';
+        this.horaFin = '';
+        this.onProgramadorChange();
+      })
+      .catch((err: any) => {
+        console.error('Error al guardar disponibilidad:', err);
+      });
   }
 
-  async eliminarSlot(id?: string) {
-    if (!id) return;
-    await this.asesoriasSrv.deleteDisponibilidad(id);
-  }
+  eliminarDisponibilidad(slot: Disponibilidad) {
+    if (!slot.id) return;
 
-  async logout() {
-    await this.auth.logout();
-    this.router.navigate(['/login']);
+    this.asesoriasService
+      .deleteDisponibilidad(slot.id)
+      .then(() => {
+        this.onProgramadorChange();
+      })
+      .catch((err: any) => {
+        console.error('Error al eliminar disponibilidad:', err);
+      });
   }
 }

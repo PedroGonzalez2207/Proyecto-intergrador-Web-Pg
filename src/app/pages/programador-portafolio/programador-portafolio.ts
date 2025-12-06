@@ -1,9 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
+import { Observable, of, switchMap } from 'rxjs';
+
 import { Auth } from '../../services/auth';
+import { User } from '../../services/user';
+import { AppUser } from '../../models/app-user';
 
 type Categoria = 'Academico' | 'Laboral';
 type Participacion = 'Frontend' | 'Backend' | 'BaseDeDatos' | 'Fullstack';
@@ -19,6 +23,13 @@ interface Proyecto {
   demoUrl?: string;
 }
 
+interface Notificacion {
+  id: number;
+  mensaje: string;
+  fecha: string;
+  leida: boolean;
+}
+
 @Component({
   selector: 'app-programador-portafolio',
   standalone: true,
@@ -26,32 +37,20 @@ interface Proyecto {
   templateUrl: './programador-portafolio.html',
   styleUrls: ['./programador-portafolio.scss'],
 })
-export class ProgramadorPortafolio {
-
-  // Servicio Auth visible en el template
+export class ProgramadorPortafolio implements OnInit {
   public auth = inject(Auth);
-
-  // Router para redirigir después de cerrar sesión
   private router = inject(Router);
+  private userService = inject(User);
 
-  // Modal
+  programador$!: Observable<AppUser | null>;
+
   modalOpen = false;
 
-  // Proyectos de ejemplo
-  proyectos: Proyecto[] = [
-    {
-      id: 1,
-      categoria: 'Academico',
-      nombre: 'Sistema de Reservas',
-      descripcion: 'App para gestionar reservas en tiempo real.',
-      participacion: 'Backend',
-      tecnologias: 'Node.js, Express, MongoDB',
-      repoUrl: 'https://github.com/example/reservas'
-    }
-  ];
+  proyectos: Proyecto[] = [];
 
-  nuevo: Proyecto = {
-    id: 0,
+  filtroCategoria: Categoria | 'Todos' = 'Todos';
+
+  nuevo: Omit<Proyecto, 'id'> = {
     categoria: 'Academico',
     nombre: '',
     descripcion: '',
@@ -61,7 +60,32 @@ export class ProgramadorPortafolio {
     demoUrl: '',
   };
 
-  // ---------- MODAL ----------
+  notificaciones: Notificacion[] = [];
+
+  ngOnInit(): void {
+    this.programador$ = this.auth.user$.pipe(
+      switchMap((u: any) => {
+        if (!u || !u.uid) {
+          return of(null);
+        }
+
+        return this.userService.getUserByUid(u.uid);
+      })
+    );
+
+  }
+
+  cambiarFiltro(cat: Categoria | 'Todos') {
+    this.filtroCategoria = cat;
+  }
+
+  obtenerProyectosFiltrados(): Proyecto[] {
+    if (this.filtroCategoria === 'Todos') {
+      return this.proyectos;
+    }
+    return this.proyectos.filter((p) => p.categoria === this.filtroCategoria);
+  }
+
   abrirModal() {
     this.modalOpen = true;
   }
@@ -69,7 +93,6 @@ export class ProgramadorPortafolio {
   cerrarModal() {
     this.modalOpen = false;
     this.nuevo = {
-      id: 0,
       categoria: 'Academico',
       nombre: '',
       descripcion: '',
@@ -80,20 +103,29 @@ export class ProgramadorPortafolio {
     };
   }
 
-  // ---------- CRUD PROYECTOS ----------
+  //Proyeto
   agregarProyecto() {
-    if (!this.nuevo.nombre || !this.nuevo.descripcion) return;
+    if (!this.nuevo.nombre.trim() || !this.nuevo.descripcion.trim()) return;
 
     const id = this.proyectos.length
-      ? Math.max(...this.proyectos.map(p => p.id)) + 1
+      ? Math.max(...this.proyectos.map((p) => p.id)) + 1
       : 1;
 
-    this.proyectos.push({ ...this.nuevo, id });
+    this.proyectos.push({ id, ...this.nuevo });
     this.cerrarModal();
   }
 
   eliminarProyecto(id: number) {
-    this.proyectos = this.proyectos.filter(p => p.id !== id);
+    this.proyectos = this.proyectos.filter((p) => p.id !== id);
+  }
+
+  //Notificaciones
+  marcarComoLeida(n: Notificacion) {
+    n.leida = true;
+  }
+
+  limpiarNotificaciones() {
+    this.notificaciones = [];
   }
 
   //LOGOUT
