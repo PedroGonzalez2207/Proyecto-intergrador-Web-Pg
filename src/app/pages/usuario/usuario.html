@@ -5,37 +5,77 @@
 </header>
 
 <main class="page-main">
-  <div class="layout-3">
-    <aside class="perfil-card">
-      <ng-container *ngIf="auth.user$ | async as u; else sinUsuario">
-        <div class="perfil-info">
-          <div class="avatar">
-            <div class="initials">
-              {{ ((u.displayName || u.email || '?') + '') | slice:0:1 | uppercase }}
+  <div class="layout-usuarios">
+    <div class="col-left">
+      <aside class="perfil-card">
+        <ng-container *ngIf="auth.user$ | async as u; else sinUsuario">
+          <div class="perfil-info">
+            <div class="avatar">
+              <div class="initials">
+                {{ ((u.displayName || u.email || '?') + '') | slice:0:1 | uppercase }}
+              </div>
+            </div>
+
+            <h3>{{ u.displayName || 'Usuario' }}</h3>
+            <p class="rol">Usuario externo</p>
+
+            <div class="datos">
+              <p>{{ u.email }}</p>
+            </div>
+
+            <div class="logout-wrapper">
+              <button class="btn-logout" (click)="logout()">
+                Cerrar sesión
+              </button>
             </div>
           </div>
+        </ng-container>
 
-          <h3>{{ u.displayName || 'Usuario' }}</h3>
-          <p class="rol">Usuario externo</p>
-
-          <div class="datos">
-            <p>{{ u.email }}</p>
+        <ng-template #sinUsuario>
+          <div class="perfil-info empty">
+            <p class="rol">Inicia sesión para ver tu perfil y solicitar asesorías.</p>
           </div>
+        </ng-template>
+      </aside>
 
-          <div class="logout-wrapper">
-            <button class="btn-logout" (click)="logout()">
-              Cerrar sesión
-            </button>
-          </div>
-        </div>
-      </ng-container>
+      <section class="mis-asesorias-card" *ngIf="misAsesorias?.length">
+        <h2>
+          Mis asesorías
+          <span *ngIf="totalAsesoriasRespondidas">
+            · Tienes {{ totalAsesoriasRespondidas }} asesoría(s) respondida(s)
+          </span>
+        </h2>
 
-      <ng-template #sinUsuario>
-        <div class="perfil-info empty">
-          <p class="rol">Inicia sesión para ver tu perfil y solicitar asesorías.</p>
+        <div class="mis-asesorias-list">
+          <article class="asesoria-item" *ngFor="let a of misAsesorias">
+            <div class="info">
+              <h3>{{ a.programadorNombre }}</h3>
+              <p class="fecha">{{ a.fecha }} — {{ a.hora }}</p>
+              <p *ngIf="a.comentario" class="comentario">
+                {{ a.comentario }}
+              </p>
+            </div>
+
+            <div class="estado">
+              <span
+                class="badge-estado"
+                [ngClass]="{
+                  pendiente: a.estado === 'Pendiente',
+                  aprobada: a.estado === 'Aprobada',
+                  rechazada: a.estado === 'Rechazada'
+                }"
+              >
+                {{ a.estado }}
+              </span>
+
+              <p class="mensaje-programador" *ngIf="a.mensajeProgramador">
+                {{ a.mensajeProgramador }}
+              </p>
+            </div>
+          </article>
         </div>
-      </ng-template>
-    </aside>
+      </section>
+    </div>
 
     <section class="main-card">
       <div class="card-header-usuario">
@@ -67,6 +107,7 @@
                     target="_blank"
                     class="social-icon github"
                     aria-label="GitHub"
+                    rel="noopener noreferrer"
                   >
                     GH
                   </a>
@@ -76,6 +117,7 @@
                     target="_blank"
                     class="social-icon linkedin"
                     aria-label="LinkedIn"
+                    rel="noopener noreferrer"
                   >
                     in
                   </a>
@@ -85,6 +127,7 @@
                     target="_blank"
                     class="social-icon portfolio"
                     aria-label="Portafolio"
+                    rel="noopener noreferrer"
                   >
                     ☰
                   </a>
@@ -94,6 +137,7 @@
                     target="_blank"
                     class="social-icon twitter"
                     aria-label="Twitter"
+                    rel="noopener noreferrer"
                   >
                     X
                   </a>
@@ -108,27 +152,35 @@
                 <div class="info">
                   <h3>{{ p.titulo }}</h3>
 
-                  <p class="meta">
-                    <span class="badge" *ngIf="p.especialidad">
-                      {{ p.especialidad }}
-                    </span>
-                    <span class="badge soft" *ngIf="p.experiencia">
-                      {{ p.experiencia }}
-                    </span>
-                  </p>
-
-                  <p class="resumen" *ngIf="p.resumen">{{ p.resumen }}</p>
-
-                  <p class="tecnologias" *ngIf="p.tecnologias">
-                    <strong>Tecnologías:</strong> {{ p.tecnologias }}
-                  </p>
+                  <div class="links" *ngIf="p.repoUrl || p.demoUrl">
+                    <a
+                      *ngIf="p.repoUrl"
+                      [href]="p.repoUrl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Repositorio
+                    </a>
+                    <a
+                      *ngIf="p.demoUrl"
+                      [href]="p.demoUrl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Demo
+                    </a>
+                  </div>
                 </div>
 
                 <div class="acciones">
                   <button type="button" class="btn-small" (click)="verDetalle(p)">
                     Ver detalles
                   </button>
-                  <button type="button" class="btn-small primary" (click)="seleccionarPortafolio(p)">
+                  <button
+                    type="button"
+                    class="btn-small primary"
+                    (click)="seleccionarPortafolio(p)"
+                  >
                     Agendar asesoría
                   </button>
                 </div>
@@ -147,31 +199,68 @@
           Todavía no hay programadores con portafolios disponibles.
         </div>
       </ng-template>
+    </section>
+  </div>
 
-      <div class="detalle-portafolio" *ngIf="detalleSeleccionado">
-        <h3>Detalle del portafolio</h3>
-        <p><strong>Título:</strong> {{ detalleSeleccionado.titulo }}</p>
-        <p><strong>Programador:</strong> {{ detalleSeleccionado.programadorNombre }}</p>
+  <div class="modal-backdrop" *ngIf="mostrarModalDetalle"></div>
+  <div class="modal modal-detalle" *ngIf="mostrarModalDetalle && detalleSeleccionado">
+    <div class="modal-content">
+      <h2>{{ detalleSeleccionado.titulo }}</h2>
+      <p class="modal-subtitle">
+        {{ detalleSeleccionado.programadorNombre }}
+      </p>
+
+      <div class="modal-body">
         <p *ngIf="detalleSeleccionado.especialidad">
           <strong>Especialidad:</strong> {{ detalleSeleccionado.especialidad }}
         </p>
         <p *ngIf="detalleSeleccionado.experiencia">
           <strong>Experiencia:</strong> {{ detalleSeleccionado.experiencia }}
         </p>
+        <p *ngIf="detalleSeleccionado.resumen">
+          <strong>Descripción:</strong> {{ detalleSeleccionado.resumen }}
+        </p>
         <p *ngIf="detalleSeleccionado.tecnologias">
           <strong>Tecnologías:</strong> {{ detalleSeleccionado.tecnologias }}
         </p>
+
+        <div class="links" *ngIf="detalleSeleccionado.repoUrl || detalleSeleccionado.demoUrl">
+          <a
+            *ngIf="detalleSeleccionado.repoUrl"
+            [href]="detalleSeleccionado.repoUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Repositorio
+          </a>
+          <a
+            *ngIf="detalleSeleccionado.demoUrl"
+            [href]="detalleSeleccionado.demoUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Demo
+          </a>
+        </div>
       </div>
-    </section>
 
-    <aside class="side-card">
-      <h2 class="section-title">Agendar asesoría</h2>
+      <div class="modal-actions">
+        <button type="button" class="btn-small" (click)="cerrarModalDetalle()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
 
-      <p class="section-subtitle" *ngIf="!seleccionado">
-        Selecciona primero un portafolio de la columna central para solicitar una asesoría.
+  <div class="modal-backdrop" *ngIf="mostrarModalAgendar"></div>
+  <div class="modal modal-agendar" *ngIf="mostrarModalAgendar && seleccionado">
+    <div class="modal-content">
+      <h2>Agendar asesoría</h2>
+      <p class="modal-subtitle">
+        {{ seleccionado.titulo }} · {{ seleccionado.programadorNombre }}
       </p>
 
-      <form *ngIf="seleccionado" (ngSubmit)="enviarSolicitud()" class="form">
+      <form (ngSubmit)="enviarSolicitud()" class="form">
         <div class="field">
           <label>Fecha</label>
           <input
@@ -186,9 +275,7 @@
         <div class="field">
           <label>Hora disponible</label>
           <select [(ngModel)]="hora" name="hora" required>
-            <option value="" disabled [selected]="!hora">
-              Selecciona una hora
-            </option>
+            <option value="" disabled [selected]="!hora">Selecciona una hora</option>
             <option *ngFor="let h of horasDisponibles" [value]="h.value">
               {{ h.label }}
             </option>
@@ -205,48 +292,17 @@
           ></textarea>
         </div>
 
-        <button type="submit" class="btn-primary">Enviar solicitud</button>
+        <div class="modal-actions">
+          <button type="button" class="btn-small" (click)="cerrarModalAgendar()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-primary">
+            Enviar solicitud
+          </button>
+        </div>
       </form>
-    </aside>
-  </div>
-
-  <section class="mis-asesorias-card" *ngIf="misAsesorias?.length">
-    <h2>
-      Mis asesorías
-      <span *ngIf="totalAsesoriasRespondidas">
-        · Tienes {{ totalAsesoriasRespondidas }} asesoría(s) respondida(s)
-      </span>
-    </h2>
-
-    <div class="mis-asesorias-list">
-      <article class="asesoria-item" *ngFor="let a of misAsesorias">
-        <div class="info">
-          <h3>{{ a.programadorNombre }}</h3>
-          <p class="fecha">{{ a.fecha }} — {{ a.hora }}</p>
-          <p *ngIf="a.comentario" class="comentario">
-            {{ a.comentario }}
-          </p>
-        </div>
-
-        <div class="estado">
-          <span
-            class="badge-estado"
-            [ngClass]="{
-              pendiente: a.estado === 'Pendiente',
-              aprobada: a.estado === 'Aprobada',
-              rechazada: a.estado === 'Rechazada'
-            }"
-          >
-            {{ a.estado }}
-          </span>
-
-          <p class="mensaje-programador" *ngIf="a.mensajeProgramador">
-            {{ a.mensajeProgramador }}
-          </p>
-        </div>
-      </article>
     </div>
-  </section>
+  </div>
 </main>
 
 <footer class="main-footer">

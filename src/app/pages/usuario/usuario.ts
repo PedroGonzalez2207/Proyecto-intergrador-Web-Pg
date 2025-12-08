@@ -20,6 +20,8 @@ interface PortafolioVisible {
   titulo: string;
   resumen?: string;
   tecnologias?: string;
+  repoUrl?: string;
+  demoUrl?: string;
 }
 
 interface ProgramadorItem {
@@ -68,6 +70,9 @@ export class Usuario implements OnInit {
   detalleSeleccionado: PortafolioVisible | null = null;
   seleccionado: PortafolioVisible | null = null;
 
+  mostrarModalDetalle = false;
+  mostrarModalAgendar = false;
+
   fecha = '';
   hora = '';
   comentario = '';
@@ -96,23 +101,21 @@ export class Usuario implements OnInit {
         this.horasDisponibles = [];
         this.misAsesorias = [];
         this.totalAsesoriasRespondidas = 0;
+        this.mostrarModalDetalle = false;
+        this.mostrarModalAgendar = false;
         this.cdr.detectChanges();
       }
     });
   }
 
   private cargarMisAsesorias(uid: string): void {
-    this.asesoriasService
-      .getAsesoriasByUsuario(uid)
-      .subscribe((lista) => {
-        this.misAsesorias = lista;
-
-        this.totalAsesoriasRespondidas = lista.filter(
-          (a) => a.estado === 'Aprobada' || a.estado === 'Rechazada'
-        ).length;
-
-        this.cdr.detectChanges();
-      });
+    this.asesoriasService.getAsesoriasByUsuario(uid).subscribe((lista) => {
+      this.misAsesorias = lista;
+      this.totalAsesoriasRespondidas = lista.filter(
+        (a) => a.estado === 'Aprobada' || a.estado === 'Rechazada'
+      ).length;
+      this.cdr.detectChanges();
+    });
   }
 
   private leerPortafoliosLocal(uid: string): PortafolioUsuario[] {
@@ -160,6 +163,8 @@ export class Usuario implements OnInit {
           titulo: p.nombre,
           resumen: p.descripcion,
           tecnologias: p.tecnologias,
+          repoUrl: (p as any).repoUrl,
+          demoUrl: (p as any).demoUrl,
         }));
 
         lista.push({
@@ -180,16 +185,24 @@ export class Usuario implements OnInit {
   verDetalle(p: PortafolioVisible): void {
     if (!this.isLoggedIn) return;
     this.detalleSeleccionado = p;
+    this.mostrarModalDetalle = true;
+  }
+
+  cerrarModalDetalle(): void {
+    this.mostrarModalDetalle = false;
+    this.detalleSeleccionado = null;
   }
 
   seleccionarPortafolio(p: PortafolioVisible): void {
     if (!this.isLoggedIn) return;
+
     this.seleccionado = p;
     this.fecha = '';
     this.hora = '';
     this.comentario = '';
     this.disponibilidades = [];
     this.horasDisponibles = [];
+    this.mostrarModalAgendar = true;
 
     this.asesoriasService
       .getDisponibilidadByProgramador(p.programadorId)
@@ -198,6 +211,15 @@ export class Usuario implements OnInit {
         this.actualizarHorasDisponibles();
         this.cdr.detectChanges();
       });
+  }
+
+  cerrarModalAgendar(): void {
+    this.mostrarModalAgendar = false;
+    this.seleccionado = null;
+    this.fecha = '';
+    this.hora = '';
+    this.comentario = '';
+    this.horasDisponibles = [];
   }
 
   onFechaChange(): void {
@@ -254,10 +276,8 @@ export class Usuario implements OnInit {
         portafolioTitulo: this.seleccionado.titulo,
       });
 
-      this.fecha = '';
-      this.hora = '';
-      this.comentario = '';
-      this.horasDisponibles = [];
+      this.cerrarModalAgendar();
+      this.cargarMisAsesorias(current.uid);
       this.cdr.detectChanges();
 
       alert('Solicitud de asesoría enviada correctamente.');

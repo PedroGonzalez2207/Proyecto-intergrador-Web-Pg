@@ -6,6 +6,33 @@
 
 <main class="page-main">
   <div class="layout">
+
+    <aside class="profile-card">
+      <ng-container *ngIf="auth.user$ | async as admin">
+        <div class="avatar">
+          <img
+            *ngIf="admin.photoURL"
+            [src]="admin.photoURL"
+            alt="Foto de administrador"
+          />
+          <div class="initials" *ngIf="!admin.photoURL">
+            {{ ((admin.displayName || admin.email || '?') + '') | slice: 0:1 |
+            uppercase }}
+          </div>
+        </div>
+
+        <h2>{{ admin.displayName || 'Administrador' }}</h2>
+        <p class="email">{{ admin.email }}</p>
+        <p class="role">Administrador</p>
+
+        <div class="profile-actions">
+          <button class="btn-red" (click)="logout()">
+            Cerrar sesión
+          </button>
+        </div>
+      </ng-container>
+    </aside>
+
     <section class="main-card card">
       <div class="card-header">
         <div>
@@ -124,31 +151,6 @@
       </ng-template>
     </section>
 
-    <aside class="profile-card">
-      <ng-container *ngIf="auth.user$ | async as admin">
-        <div class="avatar">
-          <img
-            *ngIf="admin.photoURL"
-            [src]="admin.photoURL"
-            alt="Foto de administrador"
-          />
-          <div class="initials" *ngIf="!admin.photoURL">
-            {{ ((admin.displayName || admin.email || '?') + '') | slice: 0:1 |
-            uppercase }}
-          </div>
-        </div>
-
-        <h2>{{ admin.displayName || 'Administrador' }}</h2>
-        <p class="email">{{ admin.email }}</p>
-        <p class="role">Administrador</p>
-
-        <div class="profile-actions">
-          <button class="btn-red" (click)="logout()">
-            Cerrar sesión
-          </button>
-        </div>
-      </ng-container>
-    </aside>
   </div>
 </main>
 

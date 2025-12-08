@@ -89,7 +89,7 @@ $danger: #f87171;
 .avatar {
   width: 95px;
   height: 95px;
-  margin: 0 auto 1rem;
+  margin: 0 auto 1rem auto;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
@@ -107,6 +107,11 @@ $danger: #f87171;
     font-weight: 700;
     color: $primary;
   }
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 0.4rem;
 }
 
 .email {
@@ -166,16 +171,17 @@ $danger: #f87171;
   }
 }
 
-
 .notifications-panel {
-  margin-bottom: 1.4rem;
+  margin: 1.5rem auto 1.4rem auto;
+  text-align: center;
+  width: 100%;
 
   h3 {
     margin: 0 0 0.4rem;
   }
 
   .notifications-empty {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: $text-muted;
   }
 }
@@ -191,6 +197,12 @@ $danger: #f87171;
   color: $primary;
 }
 
+.logout-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .logout-btn {
   background: #020617;
   border: 1px solid rgba(248, 113, 113, 0.7);
@@ -199,20 +211,13 @@ $danger: #f87171;
   border-radius: 999px;
   font-size: 0.86rem;
   font-weight: 500;
-  transition: background-color 0.18s ease, border-color 0.18s ease,
-    box-shadow 0.18s ease, transform 0.1s ease;
-  margin-top: auto;
-  align-self: center;
+  transition: 0.2s ease;
+  margin-top: 1.5rem;
 
   &:hover {
     border-color: red;
     box-shadow: 0 8px 20px rgba(248, 113, 113, 0.35);
     transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: none;
   }
 }
 
@@ -235,6 +240,7 @@ $danger: #f87171;
 .section-title {
   margin: 0;
   font-size: 1.4rem;
+  text-align: left;
 }
 
 .section-subtitle {
@@ -242,17 +248,26 @@ $danger: #f87171;
   color: $text-muted;
 }
 
+.card-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .card-actions button {
-  padding: 0.55rem 0.9rem;
-  border-radius: 999px;
-  background: #020617;
-  border: 1px solid $border-soft;
-  color: $text-main;
+  padding: 0.9rem 2rem;
+  border-radius: 1.8rem;
+  background: rgba(2, 6, 23, 0.7);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #e5e7eb;
+  font-size: 0.95rem;
   cursor: pointer;
+  transition: 0.2s ease;
 
   &:hover {
-    border-color: $primary;
-    color: $primary;
+    border-color: rgba(59, 130, 246, 0.8);
+    color: #3b82f6;
+    background: rgba(2, 6, 23, 0.9);
   }
 }
 
@@ -281,6 +296,7 @@ $danger: #f87171;
   }
 }
 
+// LISTA DE PROYECTOS
 .list {
   margin-top: 1rem;
   display: flex;
@@ -295,12 +311,18 @@ $danger: #f87171;
   background: #020617;
   border-radius: 1rem;
   border: 1px solid $border-soft;
-  padding: 1rem;
+  padding: 1rem 1.1rem;
+  gap: 1rem;
+}
+
+.proyecto .info {
+  flex: 1;
 }
 
 .badges {
   display: flex;
   gap: 0.4rem;
+  margin: 0.35rem 0 0.5rem;
 
   .badge {
     padding: 0.2rem 0.6rem;
@@ -315,22 +337,56 @@ $danger: #f87171;
   }
 }
 
+.descripcion {
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.links {
+  display: flex;
+  gap: 0.6rem;
+}
+
 .links a {
   text-decoration: none;
   color: $primary;
   font-size: 0.85rem;
 }
 
+.proyecto-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-end;
+}
+
+.proyecto .edit-btn,
 .proyecto .delete-btn {
   padding: 0.4rem 1.1rem;
   border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 90px;
+}
+
+.proyecto .edit-btn {
+  border: 1px solid rgba(59, 130, 246, 0.8);
+  background: rgba(37, 99, 235, 0.25);
+  color: #dbeafe;
+
+  &:hover {
+    background: rgba(37, 99, 235, 0.45);
+    color: white;
+  }
+}
+
+.proyecto .delete-btn {
   border: 1px solid rgba(248, 113, 113, 0.7);
   background: rgba(127, 29, 29, 0.6);
   color: #fecaca;
-  font-size: 0.85rem;
-  cursor: pointer;
-  display: inline-block;
-  align-self: flex-start;
 
   &:hover {
     background: rgba(248, 113, 113, 0.9);
@@ -389,7 +445,6 @@ $danger: #f87171;
     color: $text-main;
     font-family: inherit;
     font-size: 0.9rem;
-    resize: vertical;
 
     &:focus {
       outline: none;
@@ -473,10 +528,6 @@ $danger: #f87171;
   .proyecto {
     flex-direction: column;
     gap: 0.8rem;
-  }
-
-  .proyecto .delete-btn {
-    align-self: flex-end;
   }
 
   .tabs {
