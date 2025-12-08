@@ -59,6 +59,45 @@
                   <span *ngIf="prog.especialidad"><strong>Especialidad:</strong> {{ prog.especialidad }}</span>
                   <span *ngIf="prog.experiencia"><strong>Experiencia:</strong> {{ prog.experiencia }}</span>
                 </p>
+
+                <div class="social-links" *ngIf="prog.redes">
+                  <a
+                    *ngIf="prog.redes.github"
+                    [href]="prog.redes.github"
+                    target="_blank"
+                    class="social-icon github"
+                    aria-label="GitHub"
+                  >
+                    GH
+                  </a>
+                  <a
+                    *ngIf="prog.redes.linkedin"
+                    [href]="prog.redes.linkedin"
+                    target="_blank"
+                    class="social-icon linkedin"
+                    aria-label="LinkedIn"
+                  >
+                    in
+                  </a>
+                  <a
+                    *ngIf="prog.redes.portfolio"
+                    [href]="prog.redes.portfolio"
+                    target="_blank"
+                    class="social-icon portfolio"
+                    aria-label="Portafolio"
+                  >
+                    ☰
+                  </a>
+                  <a
+                    *ngIf="prog.redes.twitter"
+                    [href]="prog.redes.twitter"
+                    target="_blank"
+                    class="social-icon twitter"
+                    aria-label="Twitter"
+                  >
+                    X
+                  </a>
+                </div>
               </div>
             </header>
 
@@ -134,31 +173,26 @@
 
       <form *ngIf="seleccionado" (ngSubmit)="enviarSolicitud()" class="form">
         <div class="field">
-          <label>Programador</label>
-          <input
-            type="text"
-            [value]="seleccionado.programadorNombre"
-            disabled
-          />
-        </div>
-
-        <div class="field">
-          <label>Portafolio</label>
-          <input
-            type="text"
-            [value]="seleccionado.titulo"
-            disabled
-          />
-        </div>
-
-        <div class="field">
           <label>Fecha</label>
-          <input type="date" [(ngModel)]="fecha" name="fecha" required />
+          <input
+            type="date"
+            [(ngModel)]="fecha"
+            name="fecha"
+            (ngModelChange)="onFechaChange()"
+            required
+          />
         </div>
 
         <div class="field">
-          <label>Hora</label>
-          <input type="time" [(ngModel)]="hora" name="hora" required />
+          <label>Hora disponible</label>
+          <select [(ngModel)]="hora" name="hora" required>
+            <option value="" disabled [selected]="!hora">
+              Selecciona una hora
+            </option>
+            <option *ngFor="let h of horasDisponibles" [value]="h.value">
+              {{ h.label }}
+            </option>
+          </select>
         </div>
 
         <div class="field">
@@ -175,6 +209,44 @@
       </form>
     </aside>
   </div>
+
+  <section class="mis-asesorias-card" *ngIf="misAsesorias?.length">
+    <h2>
+      Mis asesorías
+      <span *ngIf="totalAsesoriasRespondidas">
+        · Tienes {{ totalAsesoriasRespondidas }} asesoría(s) respondida(s)
+      </span>
+    </h2>
+
+    <div class="mis-asesorias-list">
+      <article class="asesoria-item" *ngFor="let a of misAsesorias">
+        <div class="info">
+          <h3>{{ a.programadorNombre }}</h3>
+          <p class="fecha">{{ a.fecha }} — {{ a.hora }}</p>
+          <p *ngIf="a.comentario" class="comentario">
+            {{ a.comentario }}
+          </p>
+        </div>
+
+        <div class="estado">
+          <span
+            class="badge-estado"
+            [ngClass]="{
+              pendiente: a.estado === 'Pendiente',
+              aprobada: a.estado === 'Aprobada',
+              rechazada: a.estado === 'Rechazada'
+            }"
+          >
+            {{ a.estado }}
+          </span>
+
+          <p class="mensaje-programador" *ngIf="a.mensajeProgramador">
+            {{ a.mensajeProgramador }}
+          </p>
+        </div>
+      </article>
+    </div>
+  </section>
 </main>
 
 <footer class="main-footer">

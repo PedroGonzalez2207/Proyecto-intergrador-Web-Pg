@@ -42,7 +42,25 @@ export class AdminUsuarios implements OnInit {
   }
 
   cambiarRol(user: AppUser, rol: Role) {
-    this.userService.updateRol(user.uid, rol);
+    if (user.role === rol) return;
+
+    const fromRole = user.role;
+
+    const ok = window.confirm(
+      `¿Seguro que deseas cambiar el rol de ${user.displayName || user.email} de "${fromRole}" a "${rol}"?`
+    );
+    if (!ok) return;
+
+    this.userService.updateRol(user.uid, rol)
+      .then(() => {
+        console.log('[SIM-NOTIF][ROL]', {
+          uid: user.uid,
+          from: fromRole,
+          to: rol,
+          at: new Date().toISOString()
+        });
+      })
+      .catch(err => console.error('Error al actualizar rol:', err));
   }
 
   editarProgramador(user: AppUser) {

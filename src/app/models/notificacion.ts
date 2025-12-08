@@ -1,7 +1,7 @@
 export interface AppNotification {
   id?: string;
   userId: string;
-  roleTarget: 'Programdor' | 'Usuario';
+  roleTarget: 'Programador' | 'Usuario';
   type: 'NEW_REQUEST' | 'REQUEST_APPROVED' | 'REQUEST_REJECTED';
   message: string;
   createdAt: Date;

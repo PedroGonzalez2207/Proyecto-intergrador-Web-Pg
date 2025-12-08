@@ -59,7 +59,7 @@ export class AdminAsesorias implements OnInit {
     }
   }
 
-  guardarDisponibilidad() {
+  async guardarDisponibilidad() {
     if (
       !this.selectedProgrammer ||
       !this.fecha ||
@@ -79,25 +79,52 @@ export class AdminAsesorias implements OnInit {
       horaFin: this.horaFin,
     };
 
-    this.asesoriasService
-      .addDisponibilidad(slot)
-      .then(() => {
-        this.fecha = '';
-        this.horaInicio = '';
-        this.horaFin = '';
-        this.onProgramadorChange();
-      })
-      .catch((err: any) => {
-        console.error('Error al guardar disponibilidad:', err);
+    try {
+      const dup = await this.asesoriasService.isDuplicateSlot(
+        slot.programadorId,
+        slot.fecha,
+        slot.horaInicio,
+        slot.horaFin
+      );
+
+      if (dup) {
+        alert('Este horario ya está registrado para este programador.');
+        return;
+      }
+
+      await this.asesoriasService.addDisponibilidad(slot);
+
+      console.log('[SIM-NOTIF][DISPONIBILIDAD-CREADA]', {
+        programadorId: slot.programadorId,
+        programadorNombre: slot.programadorNombre,
+        fecha: slot.fecha,
+        horaInicio: slot.horaInicio,
+        horaFin: slot.horaFin,
+        at: new Date().toISOString(),
       });
+
+      this.fecha = '';
+      this.horaInicio = '';
+      this.horaFin = '';
+      this.onProgramadorChange();
+    } catch (err: any) {
+      console.error('Error al guardar disponibilidad:', err);
+    }
   }
 
   eliminarDisponibilidad(slot: Disponibilidad) {
     if (!slot.id) return;
 
+    const ok = confirm('¿Seguro que deseas eliminar este horario?');
+    if (!ok) return;
+
     this.asesoriasService
       .deleteDisponibilidad(slot.id)
       .then(() => {
+        console.log('[SIM-NOTIF][DISPONIBILIDAD-ELIMINADA]', {
+          id: slot.id,
+          at: new Date().toISOString(),
+        });
         this.onProgramadorChange();
       })
       .catch((err: any) => {

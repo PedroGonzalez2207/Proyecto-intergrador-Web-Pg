@@ -53,9 +53,9 @@
           </div>
 
           <div class="acciones">
-            <button class="btn-small approve" (click)="abrirDialogo(a,'aprobada')">Aprobar</button>
-            <button class="btn-small reject" (click)="abrirDialogo(a,'rechazada')">Rechazar</button>
-            <button class="btn-small pending" (click)="abrirDialogo(a,'pendiente')">Pendiente</button>
+            <button class="btn-small approve" (click)="abrirDialogo(a, 'Aprobada')">Aprobar</button>
+            <button class="btn-small reject"  (click)="abrirDialogo(a, 'Rechazada')">Rechazar</button>
+            <button class="btn-small pending" (click)="abrirDialogo(a, 'Pendiente')">Pendiente</button>
           </div>
         </article>
       </div>
@@ -72,9 +72,10 @@
 
   <div class="modal" *ngIf="modalOpen">
     <h2>
-      {{ estadoDestino === 'aprobada' ? 'Aprobar asesoría'
-      : estadoDestino === 'rechazada' ? 'Rechazar asesoría'
-      : 'Mantener en pendiente' }}
+      {{ estadoDestino === 'Aprobada' ? 'Aprobar asesoría'
+        :estadoDestino === 'Rechazada' ? 'Rechazar asesoría'
+        :'Guardar' }}
+
     </h2>
 
     <p class="modal-detail"><strong>De:</strong> {{ asesoriaSeleccionada?.usuarioNombre }}</p>

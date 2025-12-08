@@ -30,15 +30,54 @@
           </div>
 
           <div class="social-links" *ngIf="u.redes">
-            <a *ngIf="u.redes.github" [href]="u.redes.github" target="_blank">GitHub</a>
-            <a *ngIf="u.redes.linkedin" [href]="u.redes.linkedin" target="_blank">LinkedIn</a>
-            <a *ngIf="u.redes.portfolio" [href]="u.redes.portfolio" target="_blank">Portafolio</a>
-            <a *ngIf="u.redes.twitter" [href]="u.redes.twitter" target="_blank">Twitter</a>
+            <a
+              *ngIf="u.redes.github"
+              [href]="u.redes.github"
+              target="_blank"
+              class="social-icon github"
+              aria-label="GitHub"
+            >
+              GH
+            </a>
+            <a
+              *ngIf="u.redes.linkedin"
+              [href]="u.redes.linkedin"
+              target="_blank"
+              class="social-icon linkedin"
+              aria-label="LinkedIn"
+            >
+              in
+            </a>
+            <a
+              *ngIf="u.redes.portfolio"
+              [href]="u.redes.portfolio"
+              target="_blank"
+              class="social-icon portfolio"
+              aria-label="Portafolio"
+            >
+              ☰
+            </a>
+            <a
+              *ngIf="u.redes.twitter"
+              [href]="u.redes.twitter"
+              target="_blank"
+              class="social-icon twitter"
+              aria-label="Twitter"
+            >
+              X
+            </a>
           </div>
 
           <section class="notifications-panel">
             <h3>Notificaciones</h3>
-            <p class="notifications-empty">No tienes notificaciones nuevas.</p>
+
+            <div *ngIf="notificaciones.length > 0" class="notif-counter">
+              Tienes {{ notificaciones.length }} notificación(es) nueva(s)
+            </div>
+
+            <p class="notifications-empty" *ngIf="notificaciones.length === 0">
+              No tienes notificaciones nuevas.
+            </p>
           </section>
 
           <div class="logout-container">
@@ -98,7 +137,10 @@
               </div>
             </div>
 
-            <button class="delete-btn" (click)="eliminarProyecto(p.id)">Eliminar</button>
+            <div class="proyecto-actions">
+              <button class="edit-btn" type="button" (click)="abrirModal(p)">Editar</button>
+              <button class="delete-btn" type="button" (click)="eliminarProyecto(p.id)">Eliminar</button>
+            </div>
           </article>
         </div>
       </section>
@@ -111,11 +153,10 @@
     </div>
   </footer>
 
-  <!-- MODAL -->
   <div class="modal-bg" *ngIf="modalOpen" (click)="cerrarModal()"></div>
 
   <div class="modal" *ngIf="modalOpen">
-    <h2>Nuevo proyecto</h2>
+    <h2>{{ editando ? 'Editar proyecto' : 'Nuevo proyecto' }}</h2>
 
     <form (ngSubmit)="agregarProyecto()">
       <label>
