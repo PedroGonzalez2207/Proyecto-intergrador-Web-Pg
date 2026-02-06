@@ -1,24 +1,32 @@
 import { Injectable } from '@angular/core';
-import { AppNotification } from '../models/notificacion';
-import { Observable } from 'rxjs';
-// importa aquí tu cliente HTTP o Firestore
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environments';
 
-@Injectable({
-  providedIn: 'root'
-})
+export type Channel = 'email' | 'telegram';
+
+export interface SendNotificationRequest {
+  channels: Channel[];
+  to_email?: string;
+  telegram_chat_id?: string;
+  subject?: string;
+  message: string;
+}
+
+@Injectable({ providedIn: 'root' })
 export class NotificationService {
+  private baseUrl = (environment as any).pythonBaseUrl || 'http://localhost:9000';
+  private apiKey = (environment as any).pythonApiKey || 'supersecreto123';
 
-  createNotification(notif: AppNotification): Promise<void> | Observable<any> {
-    // Envíar la notificación a tu backend / Firestore.
-    throw new Error('Implementa createNotification según tu backend');
+  constructor(private http: HttpClient) {}
+
+  private headers(): HttpHeaders {
+    return new HttpHeaders({ 'X-API-KEY': this.apiKey });
   }
 
-  getNotificationsForUser(userId: string): Observable<AppNotification[]> {
-    throw new Error('Implementa getNotificationsForUser según tu backend');
-  }
-
-  markAsRead(notificationId: string): Promise<void> | Observable<any> {
-    //Marcar como leída.
-    throw new Error('Implementa markAsRead según tu backend');
+  send(req: SendNotificationRequest): Promise<void> {
+    return firstValueFrom(
+      this.http.post<void>(`${this.baseUrl}/notifications/send`, req, { headers: this.headers() })
+    );
   }
 }

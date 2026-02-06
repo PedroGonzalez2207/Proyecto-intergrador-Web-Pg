@@ -5,8 +5,8 @@ import { Router, RouterLink } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { AppUser, Role } from '../../models/app-user';
-import { User } from '../../services/user';
 import { Auth } from '../../services/auth';
+import { AdminUsuariosApiService } from '../../services/admin-usuarios-api';
 
 @Component({
   selector: 'app-admin-usuarios',
@@ -17,7 +17,6 @@ import { Auth } from '../../services/auth';
 })
 export class AdminUsuarios implements OnInit {
   users$!: Observable<AppUser[]>;
-
   selectedUser: AppUser | null = null;
 
   especialidad = '';
@@ -32,97 +31,68 @@ export class AdminUsuarios implements OnInit {
   nuevoEmail = '';
 
   constructor(
-    private userService: User,
+    private api: AdminUsuariosApiService,
     public auth: Auth,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.users$ = this.userService.getAllUsers();
+    this.auth.jwtReady$.subscribe((ready) => {
+      if (!ready) return;
+      this.cargar();
+    });
+  }
+
+  private cargar() {
+    this.users$ = this.api.list();
   }
 
   cambiarRol(user: AppUser, rol: Role) {
+    if (!user?.email) return;
     if (user.role === rol) return;
 
     const fromRole = user.role;
-
     const ok = window.confirm(
       `¿Seguro que deseas cambiar el rol de ${user.displayName || user.email} de "${fromRole}" a "${rol}"?`
     );
     if (!ok) return;
 
-    this.userService.updateRol(user.uid, rol)
-      .then(() => {
-        console.log('[SIM-NOTIF][ROL]', {
-          uid: user.uid,
-          from: fromRole,
-          to: rol,
-          at: new Date().toISOString()
-        });
-      })
-      .catch(err => console.error('Error al actualizar rol:', err));
+    this.api.updateRoleByEmail(user.email, rol).subscribe({
+      next: () => {
+        console.log('[API][ROL] actualizado', user.email, rol);
+        this.cargar();
+      },
+      error: (err) => console.error('Error al actualizar rol:', err),
+    });
   }
 
   editarProgramador(user: AppUser) {
     this.selectedUser = user;
 
-    this.especialidad = user.especialidad || '';
-    this.descripcion = user.descripcion || '';
-    this.fotoPerfil = user.fotoPerfil || '';
+    this.especialidad = (user as any).especialidad || '';
+    this.descripcion = (user as any).descripcion || '';
+    this.fotoPerfil = (user as any).fotoPerfil || '';
 
-    this.github = user.redes?.github || '';
-    this.linkedin = user.redes?.linkedin || '';
-    this.portfolio = user.redes?.portfolio || '';
-    this.twitter = user.redes?.twitter || '';
-  }
-
-  async guardarPerfilProgramador() {
-    if (!this.selectedUser) return;
-
-    await this.userService.updateProgrammerProfile(this.selectedUser.uid, {
-      especialidad: this.especialidad,
-      descripcion: this.descripcion,
-      fotoPerfil: this.fotoPerfil,
-      redes: {
-        github: this.github,
-        linkedin: this.linkedin,
-        portfolio: this.portfolio,
-        twitter: this.twitter,
-      },
-    });
-
-    this.selectedUser = null;
+    this.github = (user as any).redes?.github || '';
+    this.linkedin = (user as any).redes?.linkedin || '';
+    this.portfolio = (user as any).redes?.portfolio || '';
+    this.twitter = (user as any).redes?.twitter || '';
   }
 
   cancelarEdicion() {
     this.selectedUser = null;
   }
 
-  async crearProgramador() {
-    if (!this.nuevoNombre.trim() || !this.nuevoEmail.trim()) {
-      return;
-    }
+  async guardarPerfilProgramador() {
+    this.selectedUser = null;
+  }
 
-    const uid = `manual_${Date.now()}`;
-
-    const nuevo: AppUser = {
-      uid,
-      email: this.nuevoEmail.toLowerCase(),
-      displayName: this.nuevoNombre,
-      photoURL: null,
-      role: 'Programador',
-    };
-
-    await this.userService.saveUser(nuevo);
-
-    this.nuevoNombre = '';
-    this.nuevoEmail = '';
-
-    this.users$ = this.userService.getAllUsers();
+  crearProgramador() {
+    alert('Para crear un usuario, debe iniciar sesión con Google al menos una vez.');
   }
 
   async logout() {
-    await this.auth.logout();
+    this.auth.logout();
     this.router.navigate(['/login']);
   }
 }

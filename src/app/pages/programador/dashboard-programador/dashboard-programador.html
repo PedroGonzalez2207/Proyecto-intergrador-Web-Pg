@@ -1,0 +1,71 @@
+<div class="page">
+  <header class="header">
+    <div class="header-left">
+      <h2 class="title">Dashboard Programador</h2>
+      <p class="subtitle">Resumen de asesorías por rango de fechas</p>
+    </div>
+
+    <a class="btn btn-ghost" routerLink="/programador-portafolio">← Regresar</a>
+  </header>
+
+  <section class="card filters">
+    <div class="field">
+      <label>Desde</label>
+      <input type="date" [(ngModel)]="fromDate" />
+    </div>
+
+    <div class="field">
+      <label>Hasta</label>
+      <input type="date" [(ngModel)]="toDate" />
+    </div>
+
+    <button class="btn btn-primary" (click)="cargar()" [disabled]="loading">
+      {{ loading ? 'Actualizando...' : 'Actualizar' }}
+    </button>
+  </section>
+
+  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+  <div *ngIf="loading" class="loading">Cargando...</div>
+
+  <section class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">Total</div>
+      <div class="kpi-value">{{ resumen.total }}</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Aprobadas</div>
+      <div class="kpi-value">{{ resumen.aprobadas }}</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Rechazadas</div>
+      <div class="kpi-value">{{ resumen.rechazadas }}</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Pendientes</div>
+      <div class="kpi-value">{{ resumen.pendientes }}</div>
+    </div>
+  </section>
+
+  <section class="charts">
+    <div class="card chart-card">
+      <div class="card-head">
+        <h3 class="card-title">Estados</h3>
+      </div>
+      <div class="chart-wrap">
+        <canvas baseChart [data]="donutData" [type]="'doughnut'"></canvas>
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="card-head">
+        <h3 class="card-title">Asesorías por día</h3>
+      </div>
+      <div class="chart-wrap">
+        <canvas baseChart [data]="lineData" [options]="lineOptions" [type]="'line'"></canvas>
+      </div>
+    </div>
+  </section>
+</div>

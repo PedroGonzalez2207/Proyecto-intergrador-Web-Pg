@@ -1,19 +1,25 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-import { Auth } from '../../services/auth';
-import { User } from '../../services/user';
-import { AsesoriasService } from '../../services/asesosrias';
-import { AppUser, PortafolioUsuario } from '../../models/app-user';
-import { Disponibilidad, Asesoria } from '../../models/asesoria';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
-type Estado = 'pendiente' | 'aprobada' | 'rechazada';
+import { Auth } from '../../services/auth';
+import { AsesoriasService } from '../../services/asesosrias';
+import {
+  ProgramadoresApiService,
+  ProgramadorPublicDTO,
+  DisponibilidadDTO,
+  ProyectoPublicDTO,
+  fmtFecha,
+  fmtHora
+} from '../../services/programadores.api';
+import { AsesoriaDTO } from '../../models/asesoria';
+import { environment } from '../../../environments/environments';
 
 interface PortafolioVisible {
   id: number | string;
-  programadorId: string;
+  programadorId: number;
   programadorNombre: string;
   especialidad?: string;
   experiencia?: string;
@@ -25,30 +31,20 @@ interface PortafolioVisible {
 }
 
 interface ProgramadorItem {
-  id: string;
-  nombre: string;
-  especialidad?: string;
-  experiencia?: string;
-  portafolios: PortafolioVisible[];
-  redes?: any;
-}
-
-interface SolicitudAsesoria {
   id: number;
-  programadorId: string;
-  programadorNombre: string;
-  fecha: string;
-  hora: string;
-  comentario: string;
-  estado: Estado;
+  nombre: string;
+  bio?: string | null;
+  especialidades?: string | null;
+  portafolios: PortafolioVisible[];
 }
 
 interface HoraOpcion {
   value: string;
   label: string;
+  inicio: string;
+  fin: string;
+  modalidad?: string | null;
 }
-
-type AsesoriaItem = Asesoria & { id: string };
 
 @Component({
   selector: 'app-usuario',
@@ -59,8 +55,9 @@ type AsesoriaItem = Asesoria & { id: string };
 })
 export class Usuario implements OnInit {
   public auth = inject(Auth);
-  private userService = inject(User);
   private asesoriasService = inject(AsesoriasService);
+  private programadoresApi = inject(ProgramadoresApiService);
+  private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 
   isLoggedIn = false;
@@ -77,109 +74,85 @@ export class Usuario implements OnInit {
   hora = '';
   comentario = '';
 
-  solicitudes: SolicitudAsesoria[] = [];
-
-  disponibilidades: Disponibilidad[] = [];
+  disponibilidades: DisponibilidadDTO[] = [];
   horasDisponibles: HoraOpcion[] = [];
 
-  misAsesorias: AsesoriaItem[] = [];
-
+  misAsesorias: AsesoriaDTO[] = [];
   totalAsesoriasRespondidas = 0;
 
   ngOnInit(): void {
-    this.auth.user$.subscribe((u: any) => {
+    this.auth.user$.subscribe(async (u: any) => {
       if (u) {
         this.isLoggedIn = true;
-        this.cargarProgramadoresConPortafolios();
+        await this.cargarProgramadoresConProyectos();
         this.cargarMisAsesorias(u.uid);
       } else {
-        this.isLoggedIn = false;
-        this.programadores = [];
-        this.detalleSeleccionado = null;
-        this.seleccionado = null;
-        this.disponibilidades = [];
-        this.horasDisponibles = [];
-        this.misAsesorias = [];
-        this.totalAsesoriasRespondidas = 0;
-        this.mostrarModalDetalle = false;
-        this.mostrarModalAgendar = false;
-        this.cdr.detectChanges();
+        this.resetVista();
       }
     });
   }
 
+  private resetVista() {
+    this.isLoggedIn = false;
+    this.programadores = [];
+    this.detalleSeleccionado = null;
+    this.seleccionado = null;
+    this.disponibilidades = [];
+    this.horasDisponibles = [];
+    this.misAsesorias = [];
+    this.totalAsesoriasRespondidas = 0;
+    this.mostrarModalDetalle = false;
+    this.mostrarModalAgendar = false;
+    this.cdr.detectChanges();
+  }
+
   private cargarMisAsesorias(uid: string): void {
     this.asesoriasService.getAsesoriasByUsuario(uid).subscribe((lista) => {
-      this.misAsesorias = lista;
-      this.totalAsesoriasRespondidas = lista.filter(
+      const arr = lista || [];
+      this.misAsesorias = arr;
+      this.totalAsesoriasRespondidas = arr.filter(
         (a) => a.estado === 'Aprobada' || a.estado === 'Rechazada'
       ).length;
       this.cdr.detectChanges();
     });
   }
 
-  private leerPortafoliosLocal(uid: string): PortafolioUsuario[] {
-    if (typeof window === 'undefined') return [];
-    const storageKey = `proyectos_${uid}`;
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) return [];
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as PortafolioUsuario[]) : [];
-    } catch {
-      return [];
+  private async cargarProgramadoresConProyectos(): Promise<void> {
+    const programadores = await firstValueFrom(this.programadoresApi.list());
+    const lista: ProgramadorItem[] = [];
+
+    for (const p of (programadores || []) as ProgramadorPublicDTO[]) {
+      const proyectos = await this.fetchProyectosPorProgramador(p.id);
+
+      const portafolios: PortafolioVisible[] = (proyectos || []).map((pr: ProyectoPublicDTO) => ({
+        id: pr.id,
+        programadorId: p.id,
+        programadorNombre: p.nombre,
+        especialidad: (p as any).especialidades || undefined,
+        experiencia: (p as any).bio || undefined,
+        titulo: pr.nombre,
+        resumen: pr.descripcion,
+        tecnologias: pr.tecnologias || undefined,
+        repoUrl: pr.repoUrl || undefined,
+        demoUrl: pr.demoUrl || undefined,
+      }));
+
+      lista.push({
+        id: p.id,
+        nombre: p.nombre,
+        bio: (p as any).bio,
+        especialidades: (p as any).especialidades,
+        portafolios,
+      });
     }
+
+    this.programadores = lista;
+    this.cdr.detectChanges();
   }
 
-  private cargarProgramadoresConPortafolios(): void {
-    this.userService.getAllUsers().subscribe((usuarios: AppUser[]) => {
-      const lista: ProgramadorItem[] = [];
-
-      usuarios.forEach((u: any) => {
-        const uid = u.uid || u.id;
-        if (!uid) return;
-
-        const firebasePortafolios: PortafolioUsuario[] = Array.isArray(
-          (u as any).portafolios
-        )
-          ? ((u as any).portafolios as PortafolioUsuario[])
-          : [];
-
-        let basePortafolios: PortafolioUsuario[] = [];
-        if (firebasePortafolios.length > 0) {
-          basePortafolios = firebasePortafolios;
-        } else {
-          basePortafolios = this.leerPortafoliosLocal(uid);
-        }
-
-        if (!basePortafolios.length) return;
-
-        const portafolios: PortafolioVisible[] = basePortafolios.map((p) => ({
-          id: p.id,
-          programadorId: uid,
-          programadorNombre: u.displayName || u.email || 'Programador',
-          especialidad: u.especialidad,
-          experiencia: u.descripcion,
-          titulo: p.nombre,
-          resumen: p.descripcion,
-          tecnologias: p.tecnologias,
-          repoUrl: (p as any).repoUrl,
-          demoUrl: (p as any).demoUrl,
-        }));
-
-        lista.push({
-          id: uid,
-          nombre: u.displayName || u.email || 'Programador',
-          especialidad: u.especialidad,
-          experiencia: u.descripcion,
-          portafolios,
-          redes: u.redes,
-        });
-      });
-
-      this.programadores = lista;
-      this.cdr.detectChanges();
-    });
+  private async fetchProyectosPorProgramador(programadorId: number): Promise<ProyectoPublicDTO[]> {
+    const url = `${environment.apiBaseUrl}/proyectos/programador/${encodeURIComponent(String(programadorId))}`;
+    return (await firstValueFrom(this.http.get<ProyectoPublicDTO[]>(url))) || [];
   }
 
   verDetalle(p: PortafolioVisible): void {
@@ -193,6 +166,21 @@ export class Usuario implements OnInit {
     this.detalleSeleccionado = null;
   }
 
+  agendarGenerico(prog: ProgramadorItem): void {
+    this.seleccionarPortafolio({
+      id: 'N/A',
+      programadorId: prog.id,
+      programadorNombre: prog.nombre,
+      especialidad: prog.especialidades || undefined,
+      experiencia: prog.bio || undefined,
+      titulo: 'Asesoría',
+      resumen: '',
+      tecnologias: '',
+      repoUrl: '',
+      demoUrl: ''
+    });
+  }
+
   seleccionarPortafolio(p: PortafolioVisible): void {
     if (!this.isLoggedIn) return;
 
@@ -204,13 +192,16 @@ export class Usuario implements OnInit {
     this.horasDisponibles = [];
     this.mostrarModalAgendar = true;
 
-    this.asesoriasService
-      .getDisponibilidadByProgramador(p.programadorId)
-      .subscribe((slots: Disponibilidad[]) => {
-        this.disponibilidades = slots || [];
-        this.actualizarHorasDisponibles();
-        this.cdr.detectChanges();
-      });
+    this.programadoresApi.disponibilidades(p.programadorId).subscribe((slots) => {
+      this.disponibilidades = (slots || []).map(s => ({
+        ...s,
+        fecha: fmtFecha(s.fecha as any),
+        horaInicio: fmtHora(s.horaInicio as any),
+        horaFin: fmtHora(s.horaFin as any),
+      }));
+      this.actualizarHorasDisponibles();
+      this.cdr.detectChanges();
+    });
   }
 
   cerrarModalAgendar(): void {
@@ -226,14 +217,47 @@ export class Usuario implements OnInit {
     this.actualizarHorasDisponibles();
   }
 
+  nombreProgramadorEnAsesoria(a: any): string {
+    const p = a?.programador;
+    const u = p?.usuario;
+    const n = `${u?.nombres || ''} ${u?.apellidos || ''}`.trim();
+    return n || u?.email || a?.programadorNombre || '-';
+  }
+
+
+
+  private toIsoDate(input: string): string {
+    const s = String(input || '').trim();
+    if (!s) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+    const parts = s.split('/');
+    if (parts.length === 3) {
+      const a = parseInt(parts[0], 10);
+      const b = parseInt(parts[1], 10);
+      const y = parseInt(parts[2], 10);
+      if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isFinite(y)) return s;
+
+      const isDDMM = a > 12;
+      const mm = isDDMM ? b : a;
+      const dd = isDDMM ? a : b;
+
+      return `${y}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+    }
+
+    return s;
+  }
+
   private actualizarHorasDisponibles(): void {
-    if (!this.fecha) {
+    const iso = this.toIsoDate(this.fecha);
+
+    if (!iso) {
       this.horasDisponibles = [];
       this.hora = '';
       return;
     }
 
-    const delDia = this.disponibilidades.filter((s) => s.fecha === this.fecha);
+    const delDia = (this.disponibilidades || []).filter((s) => String(s.fecha) === iso);
 
     if (!delDia.length) {
       this.horasDisponibles = [];
@@ -243,11 +267,19 @@ export class Usuario implements OnInit {
     }
 
     this.horasDisponibles = delDia
-      .map((s) => ({
-        value: s.horaInicio,
-        label: `${s.horaInicio} — ${s.horaFin}`,
-      }))
-      .sort((a, b) => (a.value < b.value ? -1 : 1));
+      .map((s) => {
+        const inicio = String(s.horaInicio);
+        const fin = String(s.horaFin);
+        const value = `${inicio}|${fin}|${String(s.modalidad || '')}`;
+        return {
+          value,
+          label: `${inicio} — ${fin}`,
+          inicio,
+          fin,
+          modalidad: s.modalidad || null
+        };
+      })
+      .sort((a, b) => (a.inicio < b.inicio ? -1 : 1));
 
     if (!this.horasDisponibles.some((h) => h.value === this.hora)) {
       this.hora = '';
@@ -262,27 +294,35 @@ export class Usuario implements OnInit {
     const current = await firstValueFrom(this.auth.user$);
     if (!current) return;
 
+    const iso = this.toIsoDate(this.fecha);
+    const [inicio, fin, modRaw] = String(this.hora).split('|');
+    const modalidad = (modRaw || '').trim() || 'PRESENCIAL';
+
+    const fechaInicio = `${iso}T${String(inicio).slice(0, 5)}`;
+    const fechaFin = `${iso}T${String(fin).slice(0, 5)}`;
+
     try {
-      await this.asesoriasService.crearSolicitud({
-        usuarioUid: current.uid,
-        usuarioEmail: current.email || current.displayName || '',
-        programadorId: this.seleccionado.programadorId,
-        programadorNombre: this.seleccionado.programadorNombre,
-        fecha: this.fecha,
-        hora: this.hora,
-        comentario: this.comentario,
-        estado: 'Pendiente',
-        portafolioId: this.seleccionado.id,
-        portafolioTitulo: this.seleccionado.titulo,
-      });
+      await this.asesoriasService.crearSolicitud(
+        current.uid,
+        current.email || current.displayName || '',
+        {
+          programadorId: this.seleccionado.programadorId,
+          programadorNombre: this.seleccionado.programadorNombre,
+          fechaInicio,
+          fechaFin,
+          modalidad,
+          comentario: this.comentario,
+          portafolioId: this.seleccionado.id,
+          portafolioTitulo: this.seleccionado.titulo,
+        } as any
+      );
 
       this.cerrarModalAgendar();
       this.cargarMisAsesorias(current.uid);
       this.cdr.detectChanges();
-
       alert('Solicitud de asesoría enviada correctamente.');
     } catch (e: any) {
-      alert(e.message || 'No se pudo crear la asesoría.');
+      alert(e?.message || 'No se pudo crear la asesoría.');
     }
   }
 

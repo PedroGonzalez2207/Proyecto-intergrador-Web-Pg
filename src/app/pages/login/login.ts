@@ -9,15 +9,15 @@ import { Auth } from '../../services/auth';
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
 })
-
 export class Login {
-
-  //Servicio de Autenticación
   private authService = inject(Auth);
 
-  //Metodo al usar al botón
   async onLoginWithGoogle(): Promise<void> {
-    console.log('Click login con google (redirect)');
-    await this.authService.loginWithGoogle();
+    try {
+      console.log('Click login con google');
+      await this.authService.loginWithGoogle();
+    } catch (e) {
+      console.error('Error en login con Google:', e);
+    }
   }
 }

@@ -1,23 +1,35 @@
-export interface Disponibilidad {
-  id?: string;              
-  programadorId: string;    
-  programadorNombre: string;
-  fecha: string;            
-  horaInicio: string;       
-  horaFin: string;         
-}
-
 export type AsesoriaEstado = 'Pendiente' | 'Aprobada' | 'Rechazada';
 
-export interface Asesoria {
-  id?: string;
-  programadorId: string;
+export interface DisponibilidadDTO {
+  id?: number;
+  fecha: string;
+  horaInicio: string;
+  horaFin: string;
+  modalidad?: string | null;
+  activo?: boolean;
+}
+
+export interface AsesoriaDTO {
+  id?: number;
+  programadorId: number;
   programadorNombre: string;
-  usuarioId: string;
+  usuarioUid: string;
   usuarioNombre: string;
-  fecha: string;        
-  hora: string;         
+  fecha: string;
+  hora: string;
   comentario?: string;
   estado: AsesoriaEstado;
-  mensajeProgramador?: string; 
+  mensajeProgramador?: string;
+  portafolioId?: number | string;
+  portafolioTitulo?: string;
+}
+
+export interface CrearAsesoriaRequest {
+  programadorId: number;
+  programadorNombre: string;
+  fecha: string;
+  hora: string;
+  comentario?: string;
+  portafolioId?: number | string;
+  portafolioTitulo?: string;
 }

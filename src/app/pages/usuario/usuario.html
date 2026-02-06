@@ -24,9 +24,7 @@
             </div>
 
             <div class="logout-wrapper">
-              <button class="btn-logout" (click)="logout()">
-                Cerrar sesión
-              </button>
+              <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
             </div>
           </div>
         </ng-container>
@@ -38,7 +36,7 @@
         </ng-template>
       </aside>
 
-      <section class="mis-asesorias-card" *ngIf="misAsesorias?.length">
+      <section class="mis-asesorias-card" *ngIf="misAsesorias.length">
         <h2>
           Mis asesorías
           <span *ngIf="totalAsesoriasRespondidas">
@@ -49,11 +47,13 @@
         <div class="mis-asesorias-list">
           <article class="asesoria-item" *ngFor="let a of misAsesorias">
             <div class="info">
-              <h3>{{ a.programadorNombre }}</h3>
-              <p class="fecha">{{ a.fecha }} — {{ a.hora }}</p>
-              <p *ngIf="a.comentario" class="comentario">
-                {{ a.comentario }}
+              <h3>{{ a.programadorNombre || 'Programador' }}</h3>
+
+              <p class="fecha">
+                {{ (a.fecha && a.hora) ? (a.fecha + ' · ' + a.hora) : (a.fecha || a.hora || '—') }}
               </p>
+
+              <p *ngIf="a.comentario" class="comentario">{{ a.comentario }}</p>
             </div>
 
             <div class="estado">
@@ -82,7 +82,7 @@
         <div>
           <h1>Programadores disponibles</h1>
           <p class="subtitle">
-            Elige un programador, revisa sus portafolios y selecciona uno para agendar una asesoría.
+            Revisa sus proyectos y selecciona uno para agendar una asesoría.
           </p>
         </div>
       </div>
@@ -95,170 +95,66 @@
             <header class="prog-header">
               <div>
                 <h2>{{ prog.nombre }}</h2>
-                <p class="prog-meta" *ngIf="prog.especialidad || prog.experiencia">
-                  <span *ngIf="prog.especialidad"><strong>Especialidad:</strong> {{ prog.especialidad }}</span>
-                  <span *ngIf="prog.experiencia"><strong>Experiencia:</strong> {{ prog.experiencia }}</span>
-                </p>
 
-                <div class="social-links" *ngIf="prog.redes">
-                  <a
-                    *ngIf="prog.redes.github"
-                    [href]="prog.redes.github"
-                    target="_blank"
-                    class="social-icon github"
-                    aria-label="GitHub"
-                    rel="noopener noreferrer"
-                  >
-                    GH
-                  </a>
-                  <a
-                    *ngIf="prog.redes.linkedin"
-                    [href]="prog.redes.linkedin"
-                    target="_blank"
-                    class="social-icon linkedin"
-                    aria-label="LinkedIn"
-                    rel="noopener noreferrer"
-                  >
-                    in
-                  </a>
-                  <a
-                    *ngIf="prog.redes.portfolio"
-                    [href]="prog.redes.portfolio"
-                    target="_blank"
-                    class="social-icon portfolio"
-                    aria-label="Portafolio"
-                    rel="noopener noreferrer"
-                  >
-                    ☰
-                  </a>
-                  <a
-                    *ngIf="prog.redes.twitter"
-                    [href]="prog.redes.twitter"
-                    target="_blank"
-                    class="social-icon twitter"
-                    aria-label="Twitter"
-                    rel="noopener noreferrer"
-                  >
-                    X
-                  </a>
-                </div>
+                <p class="prog-meta" *ngIf="prog.especialidades || prog.bio">
+                  <span *ngIf="prog.especialidades">
+                    <strong>Especialidades:</strong> {{ prog.especialidades }}
+                  </span>
+                  <span *ngIf="prog.bio">
+                    <strong>Bio:</strong> {{ prog.bio }}
+                  </span>
+                </p>
               </div>
             </header>
 
-            <div class="portafolios-group" *ngIf="prog.portafolios && prog.portafolios.length; else sinPortafoliosProg">
-              <h3 class="portafolios-title">Portafolios</h3>
-
-              <article class="portafolio" *ngFor="let p of prog.portafolios">
-                <div class="info">
+            <div class="portafolios-group" *ngIf="prog.portafolios.length; else sinPortafolios">
+              <div class="portafolio-item" *ngFor="let p of prog.portafolios">
+                <div class="portafolio-info">
                   <h3>{{ p.titulo }}</h3>
+                  <p class="small" *ngIf="p.tecnologias">
+                    <strong>Tecnologías:</strong> {{ p.tecnologias }}
+                  </p>
+                  <p class="small" *ngIf="p.resumen">{{ p.resumen }}</p>
 
                   <div class="links" *ngIf="p.repoUrl || p.demoUrl">
-                    <a
-                      *ngIf="p.repoUrl"
-                      [href]="p.repoUrl"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Repositorio
-                    </a>
-                    <a
-                      *ngIf="p.demoUrl"
-                      [href]="p.demoUrl"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Demo
-                    </a>
+                    <a *ngIf="p.repoUrl" [href]="p.repoUrl" target="_blank" rel="noopener noreferrer">Repo</a>
+                    <a *ngIf="p.demoUrl" [href]="p.demoUrl" target="_blank" rel="noopener noreferrer">Demo</a>
                   </div>
                 </div>
 
-                <div class="acciones">
-                  <button type="button" class="btn-small" (click)="verDetalle(p)">
-                    Ver detalles
-                  </button>
-                  <button
-                    type="button"
-                    class="btn-small primary"
-                    (click)="seleccionarPortafolio(p)"
-                  >
-                    Agendar asesoría
+                <div class="acciones-programador">
+                  <button type="button" class="btn-small" (click)="verDetalle(p)">Ver detalle</button>
+                  <button type="button" class="btn-small primary" (click)="seleccionarPortafolio(p)">
+                    Ver horarios / Agendar
                   </button>
                 </div>
-              </article>
+              </div>
             </div>
 
-            <ng-template #sinPortafoliosProg>
-              <p class="empty small">Este programador aún no tiene portafolios registrados.</p>
+            <ng-template #sinPortafolios>
+              <p class="empty small">Este programador aún no tiene proyectos registrados.</p>
+              <div class="acciones-programador">
+                <button type="button" class="btn-small primary" (click)="agendarGenerico(prog)">
+                  Ver horarios / Agendar asesoría
+                </button>
+              </div>
             </ng-template>
           </article>
         </div>
       </ng-container>
 
       <ng-template #sinProgramadores>
-        <div class="empty-state">
-          Todavía no hay programadores con portafolios disponibles.
-        </div>
+        <div class="empty-state">Todavía no hay programadores disponibles.</div>
       </ng-template>
     </section>
   </div>
 
-  <div class="modal-backdrop" *ngIf="mostrarModalDetalle"></div>
-  <div class="modal modal-detalle" *ngIf="mostrarModalDetalle && detalleSeleccionado">
-    <div class="modal-content">
-      <h2>{{ detalleSeleccionado.titulo }}</h2>
-      <p class="modal-subtitle">
-        {{ detalleSeleccionado.programadorNombre }}
-      </p>
-
-      <div class="modal-body">
-        <p *ngIf="detalleSeleccionado.especialidad">
-          <strong>Especialidad:</strong> {{ detalleSeleccionado.especialidad }}
-        </p>
-        <p *ngIf="detalleSeleccionado.experiencia">
-          <strong>Experiencia:</strong> {{ detalleSeleccionado.experiencia }}
-        </p>
-        <p *ngIf="detalleSeleccionado.resumen">
-          <strong>Descripción:</strong> {{ detalleSeleccionado.resumen }}
-        </p>
-        <p *ngIf="detalleSeleccionado.tecnologias">
-          <strong>Tecnologías:</strong> {{ detalleSeleccionado.tecnologias }}
-        </p>
-
-        <div class="links" *ngIf="detalleSeleccionado.repoUrl || detalleSeleccionado.demoUrl">
-          <a
-            *ngIf="detalleSeleccionado.repoUrl"
-            [href]="detalleSeleccionado.repoUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Repositorio
-          </a>
-          <a
-            *ngIf="detalleSeleccionado.demoUrl"
-            [href]="detalleSeleccionado.demoUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Demo
-          </a>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" class="btn-small" (click)="cerrarModalDetalle()">
-          Cerrar
-        </button>
-      </div>
-    </div>
-  </div>
-
   <div class="modal-backdrop" *ngIf="mostrarModalAgendar"></div>
+
   <div class="modal modal-agendar" *ngIf="mostrarModalAgendar && seleccionado">
     <div class="modal-content">
       <h2>Agendar asesoría</h2>
-      <p class="modal-subtitle">
-        {{ seleccionado.titulo }} · {{ seleccionado.programadorNombre }}
-      </p>
+      <p class="modal-subtitle">{{ seleccionado.programadorNombre }}</p>
 
       <form (ngSubmit)="enviarSolicitud()" class="form">
         <div class="field">
@@ -293,14 +189,33 @@
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="btn-small" (click)="cerrarModalAgendar()">
-            Cancelar
-          </button>
-          <button type="submit" class="btn-primary">
-            Enviar solicitud
-          </button>
+          <button type="button" class="btn-small" (click)="cerrarModalAgendar()">Cancelar</button>
+          <button type="submit" class="btn-primary">Enviar solicitud</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="mostrarModalDetalle"></div>
+  <div class="modal modal-detalle" *ngIf="mostrarModalDetalle && detalleSeleccionado">
+    <div class="modal-content">
+      <h2>{{ detalleSeleccionado.titulo }}</h2>
+      <p class="modal-subtitle">{{ detalleSeleccionado.programadorNombre }}</p>
+
+      <p *ngIf="detalleSeleccionado.tecnologias">
+        <strong>Tecnologías:</strong> {{ detalleSeleccionado.tecnologias }}
+      </p>
+
+      <p *ngIf="detalleSeleccionado.resumen">{{ detalleSeleccionado.resumen }}</p>
+
+      <div class="links" *ngIf="detalleSeleccionado.repoUrl || detalleSeleccionado.demoUrl">
+        <a *ngIf="detalleSeleccionado.repoUrl" [href]="detalleSeleccionado.repoUrl" target="_blank" rel="noopener noreferrer">Repo</a>
+        <a *ngIf="detalleSeleccionado.demoUrl" [href]="detalleSeleccionado.demoUrl" target="_blank" rel="noopener noreferrer">Demo</a>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-small" (click)="cerrarModalDetalle()">Cerrar</button>
+      </div>
     </div>
   </div>
 </main>

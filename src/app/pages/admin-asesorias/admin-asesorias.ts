@@ -2,15 +2,19 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
+import { switchMap, startWith, map } from 'rxjs/operators';
 
 import { Auth } from '../../services/auth';
-import { User } from '../../services/user';
-import { AsesoriasService } from '../../services/asesosrias';
+import {
+  ProgramadoresApiService,
+  ProgramadorPublicDTO,
+  DisponibilidadDTO,
+  fmtFecha,
+  fmtHora
+} from '../../services/programadores.api';
 
-import { AppUser } from '../../models/app-user';
-import { Disponibilidad } from '../../models/asesoria';
+import { ReportsService } from '../../services/reports.service';
 
 @Component({
   selector: 'app-admin-asesorias',
@@ -21,114 +25,180 @@ import { Disponibilidad } from '../../models/asesoria';
 })
 export class AdminAsesorias implements OnInit {
   public auth = inject(Auth);
-  private userService = inject(User);
-  private asesoriasService = inject(AsesoriasService);
   private router = inject(Router);
+  private programadoresApi = inject(ProgramadoresApiService);
+  private reports = inject(ReportsService);
 
-  programadores$!: Observable<AppUser[]>;
+  programadores$: Observable<ProgramadorPublicDTO[]> = of([]);
+  selectedProgrammer: ProgramadorPublicDTO | null = null;
 
-  selectedProgrammer: AppUser | null = null;
-
-  disponibilidad$: Observable<Disponibilidad[]> = of([]);
+  private refreshDisponibilidades$ = new Subject<void>();
+  disponibilidad$: Observable<DisponibilidadDTO[]> = of([]);
 
   fecha = '';
   horaInicio = '';
   horaFin = '';
+  modalidad: 'ONLINE' | 'PRESENCIAL' = 'ONLINE';
+
+  pdfFrom = '';
+  pdfTo = '';
+  pdfLoading = false;
 
   ngOnInit(): void {
-    this.programadores$ = this.userService.getAllUsers();
+    this.auth.user$.subscribe((u: any) => {
+      if (!u) {
+        this.programadores$ = of([]);
+        this.selectedProgrammer = null;
+        this.disponibilidad$ = of([]);
+        return;
+      }
+      this.programadores$ = this.programadoresApi.list();
+    });
   }
 
   async logout() {
     try {
       await this.auth.logout();
       this.router.navigate(['/login']);
-    } catch (err: any) {
-      console.error('Error al cerrar sesión:', err);
+    } catch {}
+  }
+
+  fmtFechaUI(v: any): string {
+    const iso = this.toIsoFechaAny(v);
+    if (!iso) return '';
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('es-EC', {
+      weekday: 'long',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  }
+
+  private toIsoFechaAny(v: any): string {
+    if (!v) return '';
+
+    if (typeof v === 'string') {
+      const s = v.trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+      const parts = s.split('/');
+      if (parts.length === 3) {
+        const a = parseInt(parts[0], 10);
+        const b = parseInt(parts[1], 10);
+        const y = parseInt(parts[2], 10);
+        if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isFinite(y)) return s;
+
+        const isDDMM = a > 12;
+        const mm = isDDMM ? b : a;
+        const dd = isDDMM ? a : b;
+
+        return `${y}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+      }
+      return s;
     }
+
+    if (Array.isArray(v) && v.length >= 3) {
+      const [y, m, d] = v;
+      return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
+
+    return '';
+  }
+
+  private toIsoDateInput(input: string): string {
+    const s = String(input || '').trim();
+    if (!s) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+    const parts = s.split('/');
+    if (parts.length === 3) {
+      const a = parseInt(parts[0], 10);
+      const b = parseInt(parts[1], 10);
+      const y = parseInt(parts[2], 10);
+      if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isFinite(y)) return s;
+
+      const isDDMM = a > 12;
+      const mm = isDDMM ? b : a;
+      const dd = isDDMM ? a : b;
+
+      return `${y}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+    }
+
+    return s;
   }
 
   onProgramadorChange() {
-    if (this.selectedProgrammer) {
-      this.disponibilidad$ =
-        this.asesoriasService.getDisponibilidadByProgramador(
-          this.selectedProgrammer.uid
-        );
-    } else {
+    if (!this.selectedProgrammer) {
       this.disponibilidad$ = of([]);
-    }
-  }
-
-  async guardarDisponibilidad() {
-    if (
-      !this.selectedProgrammer ||
-      !this.fecha ||
-      !this.horaInicio ||
-      !this.horaFin
-    ) {
       return;
     }
 
-    const slot: Disponibilidad = {
-      programadorId: this.selectedProgrammer.uid,
-      programadorNombre:
-        this.selectedProgrammer.displayName ||
-        this.selectedProgrammer.email,
-      fecha: this.fecha,
-      horaInicio: this.horaInicio,
-      horaFin: this.horaFin,
-    };
+    const id = this.selectedProgrammer.id;
 
-    try {
-      const dup = await this.asesoriasService.isDuplicateSlot(
-        slot.programadorId,
-        slot.fecha,
-        slot.horaInicio,
-        slot.horaFin
-      );
-
-      if (dup) {
-        alert('Este horario ya está registrado para este programador.');
-        return;
-      }
-
-      await this.asesoriasService.addDisponibilidad(slot);
-
-      console.log('[SIM-NOTIF][DISPONIBILIDAD-CREADA]', {
-        programadorId: slot.programadorId,
-        programadorNombre: slot.programadorNombre,
-        fecha: slot.fecha,
-        horaInicio: slot.horaInicio,
-        horaFin: slot.horaFin,
-        at: new Date().toISOString(),
-      });
-
-      this.fecha = '';
-      this.horaInicio = '';
-      this.horaFin = '';
-      this.onProgramadorChange();
-    } catch (err: any) {
-      console.error('Error al guardar disponibilidad:', err);
-    }
+    this.disponibilidad$ = this.refreshDisponibilidades$.pipe(
+      startWith(void 0),
+      switchMap(() => this.programadoresApi.disponibilidades(id)),
+      map(list =>
+        (list || []).map(s => ({
+          ...s,
+          fecha: fmtFecha((s as any).fecha),
+          horaInicio: fmtHora((s as any).horaInicio),
+          horaFin: fmtHora((s as any).horaFin),
+        }))
+      )
+    );
   }
 
-  eliminarDisponibilidad(slot: Disponibilidad) {
-    if (!slot.id) return;
+  guardarDisponibilidad() {
+    if (!this.selectedProgrammer || !this.fecha || !this.horaInicio || !this.horaFin || !this.modalidad) return;
+
+    const body = {
+      fecha: this.toIsoDateInput(this.fecha),
+      horaInicio: String(this.horaInicio).slice(0, 5),
+      horaFin: String(this.horaFin).slice(0, 5),
+      modalidad: this.modalidad,
+    };
+
+    this.programadoresApi.crearDisponibilidad(this.selectedProgrammer.id, body).subscribe({
+      next: () => {
+        this.fecha = '';
+        this.horaInicio = '';
+        this.horaFin = '';
+        this.refreshDisponibilidades$.next();
+      },
+    });
+  }
+
+  eliminarDisponibilidad(slot: DisponibilidadDTO) {
+    if (!this.selectedProgrammer) return;
+    if (!slot?.id) return;
 
     const ok = confirm('¿Seguro que deseas eliminar este horario?');
     if (!ok) return;
 
-    this.asesoriasService
-      .deleteDisponibilidad(slot.id)
-      .then(() => {
-        console.log('[SIM-NOTIF][DISPONIBILIDAD-ELIMINADA]', {
-          id: slot.id,
-          at: new Date().toISOString(),
-        });
-        this.onProgramadorChange();
-      })
-      .catch((err: any) => {
-        console.error('Error al eliminar disponibilidad:', err);
-      });
+    this.programadoresApi.eliminarDisponibilidad(this.selectedProgrammer.id, slot.id).subscribe({
+      next: () => this.refreshDisponibilidades$.next(),
+    });
+  }
+
+  async descargarPdfAsesorias() {
+    try {
+      this.pdfLoading = true;
+      const from = this.pdfFrom ? this.toIsoDateInput(this.pdfFrom) : undefined;
+      const to = this.pdfTo ? this.toIsoDateInput(this.pdfTo) : undefined;
+
+      const blob = await this.reports.asesoriaPdf(from, to);
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'reporte_asesorias.pdf';
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    } finally {
+      this.pdfLoading = false;
+    }
   }
 }

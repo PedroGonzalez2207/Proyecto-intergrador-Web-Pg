@@ -6,18 +6,12 @@
 
 <main class="page-main">
   <div class="layout">
-
     <aside class="profile-card">
       <ng-container *ngIf="auth.user$ | async as admin">
         <div class="avatar">
-          <img
-            *ngIf="admin.photoURL"
-            [src]="admin.photoURL"
-            alt="Foto de administrador"
-          />
+          <img *ngIf="admin.photoURL" [src]="admin.photoURL" alt="Foto de administrador" />
           <div class="initials" *ngIf="!admin.photoURL">
-            {{ ((admin.displayName || admin.email || '?') + '') | slice: 0:1 |
-            uppercase }}
+            {{ ((admin.displayName || admin.email || '?') + '') | slice: 0:1 | uppercase }}
           </div>
         </div>
 
@@ -26,9 +20,7 @@
         <p class="role">Administrador</p>
 
         <div class="profile-actions">
-          <button class="btn-red" (click)="logout()">
-            Cerrar sesión
-          </button>
+          <button class="btn-red" (click)="logout()">Cerrar sesión</button>
         </div>
       </ng-container>
     </aside>
@@ -37,34 +29,47 @@
       <div class="card-header">
         <div>
           <h1>Gestión de asesorías</h1>
-          <p class="section-subtitle">
-            Registra los horarios de disponibilidad de cada programador.
-          </p>
+          <p class="section-subtitle">Registra los horarios de disponibilidad de cada programador.</p>
         </div>
 
         <div class="card-actions" *ngIf="auth.user$ | async">
-          <button class="btn-blue" routerLink="/admin/usuarios">
-            Usuarios
-          </button>
+          <button class="btn-blue" routerLink="/admin/usuarios">Usuarios</button>
         </div>
       </div>
 
       <div class="separator"></div>
 
+      <div class="pdf-box">
+        <h2>Reporte PDF</h2>
+
+        <div class="form-grid">
+          <label>
+            Desde
+            <input type="date" [(ngModel)]="pdfFrom" name="pdfFrom" />
+          </label>
+
+          <label>
+            Hasta
+            <input type="date" [(ngModel)]="pdfTo" name="pdfTo" />
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-lightblue" (click)="descargarPdfAsesorias()" [disabled]="pdfLoading">
+            {{ pdfLoading ? 'Generando…' : 'Descargar PDF de asesorías' }}
+          </button>
+        </div>
+
+        <div class="separator"></div>
+      </div>
+
       <div class="selector-programador">
         <label>
           Programador
-          <select
-            [(ngModel)]="selectedProgrammer"
-            name="programador"
-            (ngModelChange)="onProgramadorChange()"
-          >
+          <select [(ngModel)]="selectedProgrammer" name="programador" (ngModelChange)="onProgramadorChange()">
             <option [ngValue]="null">Seleccione un programador</option>
-
             <ng-container *ngFor="let p of (programadores$ | async)">
-              <option *ngIf="p.role === 'Programador'" [ngValue]="p">
-                {{ p.displayName || p.email }}
-              </option>
+              <option [ngValue]="p">{{ p.nombre }}</option>
             </ng-container>
           </select>
         </label>
@@ -74,26 +79,13 @@
         <div class="slots-actuales">
           <h2>Horarios registrados</h2>
 
-          <div
-            class="slots-list"
-            *ngIf="disponibilidad$ | async as slots; else loadingSlots"
-          >
+          <div class="slots-list" *ngIf="disponibilidad$ | async as slots; else loadingSlots">
             <div class="slot" *ngFor="let s of slots">
               <div class="slot-info">
-                <p class="slot-date">
-                  {{ s.fecha | date: 'EEEE d/MM/yyyy' }}
-                </p>
-                <p class="slot-time">
-                  {{ s.horaInicio }} — {{ s.horaFin }}
-                </p>
+                <p class="slot-date">{{ fmtFechaUI(s.fecha) }}</p>
+                <p class="slot-time">{{ s.horaInicio }} — {{ s.horaFin }}</p>
               </div>
-              <button
-                type="button"
-                class="btn-small"
-                (click)="eliminarDisponibilidad(s)"
-              >
-                Eliminar
-              </button>
+              <button type="button" class="btn-small" (click)="eliminarDisponibilidad(s)">Eliminar</button>
             </div>
 
             <div class="empty-state" *ngIf="slots.length === 0">
@@ -102,9 +94,7 @@
           </div>
 
           <ng-template #loadingSlots>
-            <div class="empty-state">
-              Cargando horarios…
-            </div>
+            <div class="empty-state">Cargando horarios…</div>
           </ng-template>
         </div>
 
@@ -122,23 +112,25 @@
 
               <label>
                 Hora inicio
-                <input
-                  type="time"
-                  [(ngModel)]="horaInicio"
-                  name="horaInicio"
-                />
+                <input type="time" [(ngModel)]="horaInicio" name="horaInicio" />
               </label>
 
               <label>
                 Hora fin
                 <input type="time" [(ngModel)]="horaFin" name="horaFin" />
               </label>
+
+              <label>
+                Modalidad
+                <select [(ngModel)]="modalidad" name="modalidad">
+                  <option value="ONLINE">Virtual</option>
+                  <option value="PRESENCIAL">Presencial</option>
+                </select>
+              </label>
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="btn-lightblue">
-                Guardar horario
-              </button>
+              <button type="submit" class="btn-lightblue">Guardar horario</button>
             </div>
           </form>
         </div>
@@ -150,7 +142,6 @@
         </div>
       </ng-template>
     </section>
-
   </div>
 </main>
 

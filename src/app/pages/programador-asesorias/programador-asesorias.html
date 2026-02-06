@@ -27,17 +27,23 @@
 
       <div class="separator"></div>
 
-      <p class="empty" *ngIf="!asesorias.length">
+      <p class="empty" *ngIf="loading">Cargando asesorías…</p>
+
+      <p class="empty" *ngIf="!loading && errorMsg">
+        {{ errorMsg }}
+      </p>
+
+      <p class="empty" *ngIf="!loading && !errorMsg && !asesorias.length">
         No tienes solicitudes en este momento.
       </p>
 
-      <div class="list" *ngIf="asesorias.length">
+      <div class="list" *ngIf="!loading && !errorMsg && asesorias.length">
         <article class="item" *ngFor="let a of asesorias">
           <div class="info">
             <header class="item-header">
               <div>
-                <h3>{{ a.usuarioNombre || 'Usuario sin nombre' }}</h3>
-                <p class="meta">{{ a.fecha }} · {{ a.hora }}</p>
+                <h3>{{ a.usuarioNombreUI || 'Usuario' }}</h3>
+                <p class="meta">{{ a.fechaUI }} · {{ a.horaUI }}</p>
               </div>
 
               <span class="estado" [ngClass]="a.estado">
@@ -75,11 +81,10 @@
       {{ estadoDestino === 'Aprobada' ? 'Aprobar asesoría'
         :estadoDestino === 'Rechazada' ? 'Rechazar asesoría'
         :'Guardar' }}
-
     </h2>
 
-    <p class="modal-detail"><strong>De:</strong> {{ asesoriaSeleccionada?.usuarioNombre }}</p>
-    <p class="modal-detail"><strong>Fecha:</strong> {{ asesoriaSeleccionada?.fecha }} · {{ asesoriaSeleccionada?.hora }}</p>
+    <p class="modal-detail"><strong>De:</strong> {{ asesoriaSeleccionada?.usuarioNombreUI }}</p>
+    <p class="modal-detail"><strong>Fecha:</strong> {{ asesoriaSeleccionada?.fechaUI }} · {{ asesoriaSeleccionada?.horaUI }}</p>
 
     <label class="modal-label">
       Mensaje para el usuario
@@ -93,4 +98,3 @@
   </div>
 
 </div>
-  

@@ -1,5 +1,4 @@
 <div class="page-wrapper">
-
   <header class="main-header">
     <div class="header-content">
       <span class="brand">Panel del Programador</span>
@@ -8,13 +7,11 @@
 
   <main class="page-main">
     <div class="layout">
-
       <aside class="profile-card">
         <ng-container *ngIf="(auth.user$ | async) as u">
-
           <div class="avatar">
-            <img *ngIf="u.fotoPerfil" [src]="u.fotoPerfil" alt="Foto">
-            <img *ngIf="!u.fotoPerfil && u.photoURL" [src]="u.photoURL" alt="Foto">
+            <img *ngIf="u.fotoPerfil" [src]="u.fotoPerfil" alt="Foto" />
+            <img *ngIf="!u.fotoPerfil && u.photoURL" [src]="u.photoURL" alt="Foto" />
             <div class="initials" *ngIf="!u.fotoPerfil && !u.photoURL">
               {{ ((u.displayName || u.email || '?') + '') | slice:0:1 | uppercase }}
             </div>
@@ -36,6 +33,7 @@
               target="_blank"
               class="social-icon github"
               aria-label="GitHub"
+              rel="noopener noreferrer"
             >
               GH
             </a>
@@ -45,6 +43,7 @@
               target="_blank"
               class="social-icon linkedin"
               aria-label="LinkedIn"
+              rel="noopener noreferrer"
             >
               in
             </a>
@@ -54,6 +53,7 @@
               target="_blank"
               class="social-icon portfolio"
               aria-label="Portafolio"
+              rel="noopener noreferrer"
             >
               ☰
             </a>
@@ -63,6 +63,7 @@
               target="_blank"
               class="social-icon twitter"
               aria-label="Twitter"
+              rel="noopener noreferrer"
             >
               X
             </a>
@@ -81,7 +82,7 @@
           </section>
 
           <div class="logout-container">
-            <button class="btn-red logout-btn" (click)="logout()">
+            <button class="btn-red logout-btn" type="button" (click)="logout()">
               Cerrar sesión
             </button>
           </div>
@@ -96,17 +97,39 @@
           </div>
 
           <div class="card-actions">
-            <button routerLink="/programador/asesorias">Ver asesorías</button>
-            <button (click)="abrirModal()">+ Nuevo proyecto</button>
+            <button type="button" routerLink="/programador/dashboard">Ver dashboard</button>
+            <button type="button" routerLink="/programador/asesorias">Ver asesorías</button>
+            <button type="button" (click)="abrirModal()">+ Nuevo proyecto</button>
           </div>
         </div>
 
         <div class="separator"></div>
 
         <div class="tabs">
-          <button class="tab-btn" [class.active]="filtroCategoria === 'Todos'" (click)="cambiarFiltro('Todos')">Todos</button>
-          <button class="tab-btn" [class.active]="filtroCategoria === 'Academico'" (click)="cambiarFiltro('Academico')">Académico</button>
-          <button class="tab-btn" [class.active]="filtroCategoria === 'Laboral'" (click)="cambiarFiltro('Laboral')">Laboral</button>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="filtroCategoria === 'Todos'"
+            (click)="cambiarFiltro('Todos')"
+          >
+            Todos
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="filtroCategoria === 'Academico'"
+            (click)="cambiarFiltro('Academico')"
+          >
+            Académico
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="filtroCategoria === 'Laboral'"
+            (click)="cambiarFiltro('Laboral')"
+          >
+            Laboral
+          </button>
         </div>
 
         <p class="empty" *ngIf="!obtenerProyectosFiltrados().length">
@@ -132,8 +155,8 @@
               </p>
 
               <div class="links">
-                <a *ngIf="p.repoUrl" [href]="p.repoUrl" target="_blank">Repositorio</a>
-                <a *ngIf="p.demoUrl" [href]="p.demoUrl" target="_blank">Demo</a>
+                <a *ngIf="p.repoUrl" [href]="p.repoUrl" target="_blank" rel="noopener noreferrer">Repositorio</a>
+                <a *ngIf="p.demoUrl" [href]="p.demoUrl" target="_blank" rel="noopener noreferrer">Demo</a>
               </div>
             </div>
 
@@ -148,9 +171,7 @@
   </main>
 
   <footer class="main-footer">
-    <div class="footer-content">
-      © 2025 Code Stage - UPS
-    </div>
+    <div class="footer-content">© 2025 Code Stage - UPS</div>
   </footer>
 
   <div class="modal-bg" *ngIf="modalOpen" (click)="cerrarModal()"></div>
@@ -158,10 +179,10 @@
   <div class="modal" *ngIf="modalOpen">
     <h2>{{ editando ? 'Editar proyecto' : 'Nuevo proyecto' }}</h2>
 
-    <form (ngSubmit)="agregarProyecto()">
+    <form (ngSubmit)="agregarProyecto(); $event.preventDefault()">
       <label>
         Nombre *
-        <input type="text" name="nombre" [(ngModel)]="nuevo.nombre">
+        <input type="text" name="nombre" [(ngModel)]="nuevo.nombre" />
       </label>
 
       <label>
@@ -189,17 +210,17 @@
 
       <label>
         Tecnologías
-        <input name="tecnologias" [(ngModel)]="nuevo.tecnologias">
+        <input name="tecnologias" [(ngModel)]="nuevo.tecnologias" />
       </label>
 
       <label>
         Repositorio
-        <input name="repoUrl" [(ngModel)]="nuevo.repoUrl">
+        <input name="repoUrl" [(ngModel)]="nuevo.repoUrl" />
       </label>
 
       <label>
         Demo
-        <input name="demoUrl" [(ngModel)]="nuevo.demoUrl">
+        <input name="demoUrl" [(ngModel)]="nuevo.demoUrl" />
       </label>
 
       <div class="modal-actions">
@@ -208,5 +229,4 @@
       </div>
     </form>
   </div>
-
 </div>
